@@ -1,4 +1,4 @@
-# 🌱 Sistema de Gestión Hidropónica — Trabajo Práctico SQL
+# 🌱 Sistema de Gestión Hidropónica — Trabajo Práctico SQL - GRUPO 7
 
 Trabajo práctico de base de datos que modela la gestión de un sistema de cultivo hidropónico. El proyecto está desarrollado íntegramente en **SQL**, incluyendo el diseño de entidades, triggers y stored procedures.
 
@@ -38,8 +38,8 @@ La hidroponía es una técnica de cultivo sin suelo, donde las plantas crecen co
 
 ## 🛠 Tecnologías
 
-- **Motor de base de datos:** _[SQL Server / MySQL / PostgreSQL]_
-- **Herramienta de gestión:** _[SSMS / MySQL Workbench / DBeaver / pgAdmin]_
+- **Motor de base de datos:** SQL Server
+- **Herramienta de gestión:** SSMS
 
 ---
 
@@ -131,10 +131,14 @@ SELECT * FROM Cultivo WHERE Estado = 'Activo';
 
 ## 👥 Integrantes
 
-| Nombre | Legajo | GitHub |
+| Nombre | Legajo | grupo 7
 |---|---|---|
-| _[Nombre Apellido]_ | _[00000]_ | [@usuario](https://github.com/usuario) |
-| _[Nombre Apellido]_ | _[00000]_ | [@usuario](https://github.com/usuario) |
+| Alejandro Zoilo Guzman | _[00000]_ 
+| Diego Rua| _[00000]_ 
+| Macarena Molina | _[00000]_ 
+| Nicolas | _[00000]_ 
+| Guido Botta | _[00000]_ 
+
 
 ---
 
