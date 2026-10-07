@@ -102,7 +102,7 @@ La hidroponía es una técnica de cultivo sin suelo, donde las plantas crecen co
 
 1. Clonar el repositorio:
 ```bash
-   git clone https://github.com/[usuario]/[repositorio].git
+  https://github.com/Zoale/happy_hydro_db.git
 ```
 2. Abrir los scripts en _[herramienta de gestión]_.
 3. Ejecutarlos **en orden numérico**:
