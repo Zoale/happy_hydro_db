@@ -20,15 +20,20 @@ Trabajo práctico de base de datos que modela la gestión de un sistema de culti
 
 ---
 
-## 📖 Descripción
+## Contexto
+La hidroponía es una técnica de cultivo sin suelo en la que las plantas crecen con sus raíces en una solución de agua y nutrientes, dentro de un ambiente controlado como un invernadero. Para que el cultivo prospere, es necesario mantener estables una serie de parámetros ambientales y llevar un seguimiento detallado de cada etapa de la planta.
 
-La hidroponía es una técnica de cultivo sin suelo, donde las plantas crecen con sus raíces en una solución de agua y nutrientes. Este TP propone una base de datos para registrar y controlar:
+## Problemática
+A partir del relevamiento realizado con una persona que gestiona un cultivo, se identificó que actualmente los invernaderos son administrados mediante tareas manuales. Las personas a cargo deben controlar de forma periódica parámetros como la temperatura, la humedad, los nutrientes, la iluminación y la ventilación. A esto se suma el registro de la fase en la que se encuentra cada planta (vegetación o floración), las fechas de plantación y de cosecha, y el tiempo de curado.
+El encendido y apagado de las luces se controla mediante timers que deben configurarse manualmente, y toda la información del cultivo se asienta en un cuaderno. Este método resulta rutinario y poco eficiente: depende de la constancia de quien registra, dificulta detectar a tiempo valores fuera de lo normal y no permite consultar el historial de forma ágil.
 
-- Los cultivos y las especies de plantas.
-- Los sistemas/módulos hidropónicos utilizados.
-- Las soluciones nutritivas y su composición.
-- Las mediciones de parámetros (pH, conductividad eléctrica, temperatura, etc.).
-- Las cosechas y su rendimiento.
+## Propuesta
+Este trabajo práctico propone el diseño de una base de datos para un sistema de gestión de invernadero que permita:
+Automatizar el control de parámetros mediante sensores que registren las mediciones de temperatura, humedad, nutrientes, iluminación y ventilación.
+Generar alertas cuando algún parámetro se encuentre fuera del rango configurado.
+Reemplazar el registro en cuaderno por tablas que almacenen la información de cada planta: fase, fecha de plantación, fecha de cosecha y tiempo de curado.
+Gestionar a los empleados y las tareas que realizan, como poda, cosecha, corrección de pH y mantenimiento ante fallas de sensores o equipos.
+
 
 **Materia:** _[Nombre de la materia]_
 **Institución:** _[Nombre de la institución]_
@@ -131,13 +136,13 @@ SELECT * FROM Cultivo WHERE Estado = 'Activo';
 
 ## 👥 Integrantes
 
-| Nombre | Legajo | grupo 7
+| Nombre | grupo 7
 |---|---|---|
-| Alejandro Zoilo Guzman | _[00000]_ 
-| Diego Rua| _[00000]_ 
-| Macarena Molina | _[00000]_ 
-| Nicolas | _[00000]_ 
-| Guido Botta | _[00000]_ 
+| Alejandro Zoilo Guzman | 
+| Diego Rua| 
+| Macarena Molina | 
+| Nicolas | 
+| Guido Botta | 
 
 
 ---
