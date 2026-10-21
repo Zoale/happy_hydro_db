@@ -1,4 +1,9 @@
-USE master;
+/* Creación de la base de datos happy_hidro */
+CREATE DATABASE happy_hidro;
+GO
+/* Uso de base de datos creada*/
+	
+USE happy_hidro;
 GO
 /* sistema_torre:
 Torre donde se plantan los cultivos, cada torre tiene un limite de agua y capacidad de plantas.
