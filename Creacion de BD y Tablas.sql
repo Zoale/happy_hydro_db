@@ -1,99 +1,140 @@
-/* Creación de la base de datos happy_hidro */
-CREATE DATABASE happy_hidro;
+USE master;
 GO
-
-USE happy_hidro;
+/* sistema_torre:
+Torre donde se plantan los cultivos, cada torre tiene un limite de agua y capacidad de plantas.
+Y, ubicacion_lote y ubicacion_rack son para identificar la torre en el invernadero.
+ agua_actual es la cantidad de agua que hay actualmente en la torre, no puede ser negativa ni superar max_agua.
+*/
+CREATE TABLE sistema_torre (
+	id_torre INT IDENTITY(1,1) PRIMARY KEY,
+	max_agua DECIMAL(6,2) NOT NULL,
+	capacidad_planta INT NOT NULL,
+	ubicacion_lote VARCHAR(2) NOT NULL,
+	ubicacion_rack VARCHAR(1) NOT NULL,
+	agua_actual INT NOT NULL DEFAULT 0,
+	CONSTRAINT CHK_agua_positivo CHECK (agua_actual >= 0),
+	CONSTRAINT CHK_agua_max CHECK (agua_actual <= max_agua)
+);
 GO
-
-/* Creación de las tablas de happy_hidro */
-
-/* Creación de la tabla "Sistemas" */
-CREATE TABLE sistemas (
-    id_sistema int IDENTITY PRIMARY KEY,
-    tipo varchar(30) NOT NULL,
-    capacidad int NOT NULL,
-    ubicacion varchar(50) NOT NULL,
-    CONSTRAINT chk_tipo CHECK (tipo IN ('NFT', 'raiz flotante', 'aeroponía', 'goteo'))
+/*
+Especie
+cada tipo de planta que se puede cultivar, con sus parametros optimos de pH, EC y temperatura de agua.
+nombre debe ser unico, no puede haber dos especies con el mismo nombre.
+ph_optimo, ec_optimo y temp_agua_optimo pueden ser null si no se conoce el valor optimo para esa especie.
+*/
+CREATE TABLE especie (
+	id_especie INT IDENTITY(1,1) PRIMARY KEY,
+	nombre VARCHAR(50) NOT NULL,
+	ph_optimo DECIMAL(3,1) NULL,
+	ec_optimo DECIMAL(4,2) NULL,
+	temp_agua_optimo DECIMAL(3,1) NULL,
+	CONSTRAINT UQ_especie_nombre UNIQUE (nombre)
 );
 GO
 
-/* Creación de la tabla "Soluciones_nutritivas" */
-CREATE TABLE soluciones_nutritivas (
-    id_solucion int IDENTITY PRIMARY KEY,
-    nombre varchar(50) NOT NULL,
-    nitrogeno decimal(3,0) NOT NULL,
-    fosforo decimal(3,0) NOT NULL,
-    potasio decimal(3,0) NOT NULL,
-    conductividad_ec decimal(4,0) NOT NULL   -- EC de la solución
-);
-GO
 
-/* Creación de la tabla "Especies" */
-CREATE TABLE especies (
-    id_especie int IDENTITY PRIMARY KEY,
-    nombre varchar(50) NOT NULL,
-    ph_minimo_idea decimal(2,1) NOT NULL,
-    ph_maximo_idea decimal(2,1) NOT NULL,
-    dias_hasta_cosecha int NOT NULL
-);
-GO
-
-/* Creación de la tabla "Cultivos" */
+/* 
+Cultivos
+cultivo activo en una torre
+fecha_cosecha es null mientras no se haya cosechado
+estado: EN PROGRESO, COSECHADO, MUERTO o MANTENIMIENTO
+ */
 CREATE TABLE cultivos (
-    id_cultivo int IDENTITY PRIMARY KEY,
-    fecha_siembra date,
-    cantidad int NOT NULL,
-    estado varchar(50) NOT NULL,
-    id_sistema int FOREIGN KEY REFERENCES sistemas(id_sistema),
-    id_especie int FOREIGN KEY REFERENCES especies(id_especie)
+	id_cultivo INT IDENTITY(1,1) PRIMARY KEY,
+	id_especie INT NOT NULL,
+	id_torre INT NOT NULL,
+	fecha_inicio DATE NOT NULL,
+	fecha_cosecha DATE NULL,
+	estado VARCHAR(20) NOT NULL DEFAULT 'EN PROGRESO',
+	cantidad_plantas INT NULL,
+	CONSTRAINT FK_cultivo_especie FOREIGN KEY (id_especie) REFERENCES especie(id_especie),
+	CONSTRAINT FK_cultivo_torre FOREIGN KEY (id_torre) REFERENCES sistema_torre(id_torre),
+	CONSTRAINT CHK_estado_cultivo CHECK (estado IN ('EN PROGRESO', 'COSECHADO', 'MUERTO', 'MANTENIMIENTO')),
+	CONSTRAINT CHK_plantas CHECK (cantidad_plantas IS NULL OR cantidad_plantas > 0),
+	CONSTRAINT CHK_fecha_cosecha CHECK (fecha_cosecha IS NULL OR fecha_cosecha >= fecha_inicio)
 );
 GO
 
-/* Creación de la tabla "Mediciones" */
-CREATE TABLE mediciones (
-    id_medicion int IDENTITY PRIMARY KEY,
-    id_sistema int NOT NULL FOREIGN KEY REFERENCES sistemas(id_sistema),
-    fecha_hora datetime2 NOT NULL DEFAULT SYSDATETIME(),
-    ph decimal(3,1) NOT NULL,
-    ec decimal(4,2) NOT NULL,                 -- mS/cm
-    temperatura_agua decimal(4,1) NOT NULL,   -- °C
-    oxigeno_disuelto decimal(4,2) NOT NULL    -- mg/L
+/* parametros:
+define los parametros que se miden (pH, EC, temperatura...)
+*/
+CREATE TABLE parametros (
+	id_parametro INT IDENTITY(1,1) PRIMARY KEY,
+	parametro_descripcion VARCHAR(50) NOT NULL,
+	maximo DECIMAL(6,2) NULL,
+	minimo DECIMAL(6,2) NULL
 );
 GO
-
-/* Creación de la tabla "Empleado" (propuesta: revisar atributos) */
+/* parametros por cultivo:
+medicion concreta de un parametro para un cultivo
+*/
+CREATE TABLE parametros_por_cultivo (
+	id_cultivo INT NOT NULL,
+	id_parametro INT NOT NULL,
+	ph_actual DECIMAL(3,1) NULL,
+	ec_actual DECIMAL(4,2) NULL,
+	temp_agua_actual DECIMAL(3,1) NULL,
+	fecha_medicion DATETIME NOT NULL DEFAULT GETDATE(),
+	CONSTRAINT PK_parametros_cultivo PRIMARY KEY (id_cultivo, id_parametro, fecha_medicion),
+	CONSTRAINT FK_pc_cultivo FOREIGN KEY (id_cultivo) REFERENCES cultivos(id_cultivo),
+	CONSTRAINT FK_pc_parametro FOREIGN KEY (id_parametro) REFERENCES parametros(id_parametro)
+);
+GO
+/* empleado:
+identifica a un empleado que puede ejecutar tareas sobre los cultivos o las torres
+*/
 CREATE TABLE empleado (
-    id_empleado int IDENTITY PRIMARY KEY,
-    nombre varchar(50) NOT NULL,
-    apellido varchar(50) NOT NULL,
-    rol varchar(30) NOT NULL,
-    email varchar(100) UNIQUE,
-    fecha_ingreso date NOT NULL
+	id_empleado INT IDENTITY(1,1) PRIMARY KEY,
+	nombre VARCHAR(50) NOT NULL,
+	apellido VARCHAR(50) NOT NULL
+);
+GO
+/* tipo_tareas:
+identifica los tipos de tareas que se pueden realizar sobre los cultivos o las torres,
+solo se puede crear un tipo de tarea con un nombre unico, la descripcion es opcional.
+*/
+CREATE TABLE tipo_tareas (
+	id_tipo_tarea INT IDENTITY(1,1) PRIMARY KEY,
+	nombre VARCHAR(50) NOT NULL,
+	descripcion VARCHAR(100) NULL,
+	CONSTRAINT UQ_tipo_tarea UNIQUE (nombre)
 );
 GO
 
-/* Creación de la tabla "Tareas_Empleado" (propuesta: revisar atributos) */
-CREATE TABLE tareas_empleado (
-    id_tarea int IDENTITY PRIMARY KEY,
-    id_empleado int NOT NULL FOREIGN KEY REFERENCES empleado(id_empleado),
-    id_sistema int FOREIGN KEY REFERENCES sistemas(id_sistema),
-    descripcion varchar(200) NOT NULL,
-    fecha_asignacion date NOT NULL,
-    fecha_realizacion date,
-    estado varchar(20) NOT NULL DEFAULT 'pendiente',
-    CONSTRAINT chk_estado_tarea CHECK (estado IN ('pendiente', 'en curso', 'completada'))
-);
-GO
-
-/* Creación de la tabla "Auditoria_de_base" (propuesta: registro de cambios) */
-CREATE TABLE auditoria_de_base (
-    id_auditoria int IDENTITY PRIMARY KEY,
-    tabla varchar(50) NOT NULL,
-    operacion varchar(10) NOT NULL,
-    id_registro int,
-    usuario varchar(50) NOT NULL DEFAULT SUSER_SNAME(),
-    fecha_hora datetime2 NOT NULL DEFAULT SYSDATETIME(),
-    detalle varchar(MAX),
-    CONSTRAINT chk_operacion CHECK (operacion IN ('INSERT', 'UPDATE', 'DELETE'))
+/* tareas:
+identifica una tarea concreta que se debe realizar sobre un cultivo o una torre, asignada a un empleado.
+es determinada por un tipo de tarea, y puede tener una fecha programada y una fecha ejecutada.
+Tiene un estado que puede ser PENDIENTE, PROGRAMADA, EN PROGRESO, FINALIZADA o CANCELADA.
+y hace referencia a un cultivo o a una torre, pero no necesariamente a ambos.
+Tiene un chequeo de integridad que asegura que si el estado es PROGRAMADA, EN PROGRESO o FINALIZADA, debe tener una fecha programada.
+*/
+CREATE TABLE tareas (
+	id_tarea INT IDENTITY(1,1) PRIMARY KEY,
+	id_tipo_tarea INT NOT NULL,
+	id_torre INT NOT NULL,
+	id_cultivo INT NULL,
+	id_empleado INT NOT NULL,
+	fecha_programada DATE NULL,
+	fecha_ejecutada DATE NULL,
+	estado VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
+	observaciones VARCHAR(255) NULL,
+	CONSTRAINT FK_tarea_tipo FOREIGN KEY (id_tipo_tarea) REFERENCES tipo_tareas(id_tipo_tarea),
+	CONSTRAINT FK_tarea_torre FOREIGN KEY (id_torre) REFERENCES sistema_torre(id_torre),
+	CONSTRAINT FK_tarea_cultivo FOREIGN KEY (id_cultivo) REFERENCES cultivos(id_cultivo),
+	CONSTRAINT FK_tarea_empleado FOREIGN KEY (id_empleado) REFERENCES empleado(id_empleado),
+	CONSTRAINT CHK_estado CHECK (estado IN ('PENDIENTE', 'PROGRAMADA', 'EN PROGRESO', 'FINALIZADA', 'CANCELADA')),
+	CONSTRAINT CHK_fecha_prog CHECK (
+		estado NOT IN ('PROGRAMADA', 'EN PROGRESO', 'FINALIZADA')
+		OR fecha_programada IS NOT NULL
+	),
+	CONSTRAINT CHK_fecha_ejec CHECK (
+		estado <> 'FINALIZADA'
+		OR fecha_ejecutada IS NOT NULL
+	),
+	CONSTRAINT CHK_orden_fechas CHECK (
+		fecha_ejecutada IS NULL
+		OR fecha_programada IS NULL
+		OR fecha_ejecutada >= fecha_programada
+	)
 );
 GO
