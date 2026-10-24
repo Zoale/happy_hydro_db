@@ -36,3 +36,15 @@ join sistema_torre t on c.id_torre = t.id_torre
 where c.estado in ('EN PROGRESO', 'MANTENIMIENTO')
 order by lote, rack;
 GO
+
+/*
+Consulta 4:
+Cantidad de cultivos y total de plantas por cada estado
+(en progreso, cosechado, muerto, mantenimiento).
+Ordenado de mayor a menor cantidad de cultivos.
+*/
+select estado, count(*) as cultivos, sum(cantidad_plantas) as plantas
+from cultivos
+group by estado
+order by cultivos desc;
+GO
