@@ -48,3 +48,17 @@ from cultivos
 group by estado
 order by cultivos desc;
 GO
+
+/*
+Consulta 5:
+Tareas finalizadas, indicando la torre, empleado que la realizo,
+el tipo de tarea con su descripcion, la fecha de ejecucion y observaciones.
+Ordenado de la mas reciente a la mas antigua.
+*/
+select t.id_tarea, t.id_torre, e.nombre as nombre_empleado, e.apellido as apellido_empleado, x.nombre as tarea, x.descripcion as tarea_descripcion, t.fecha_ejecutada, t.observaciones
+from tareas t
+join tipo_tareas as x on t.id_tipo_tarea = x.id_tipo_tarea
+join empleado as e on t.id_empleado = e.id_empleado
+where t.estado = 'FINALIZADA'
+order by t.fecha_ejecutada desc;
+GO
