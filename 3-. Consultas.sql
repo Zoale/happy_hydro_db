@@ -62,3 +62,14 @@ join empleado as e on t.id_empleado = e.id_empleado
 where t.estado = 'FINALIZADA'
 order by t.fecha_ejecutada desc;
 GO
+
+/*
+Consulta 6:
+Lotes del invernadero que tienen mas de 3 torres,
+indicando la cantidad de torres en las que se encuentran.
+*/
+select ubicacion_lote as lote, count(*) as torres
+from sistema_torre
+group by ubicacion_lote
+having count(*) > 3;
+GO
