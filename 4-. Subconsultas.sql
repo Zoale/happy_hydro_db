@@ -24,3 +24,14 @@ select id_empleado, nombre, apellido
 from empleado
 where id_empleado in (select id_empleado from tareas where estado = 'PENDIENTE');
 GO
+
+/*
+Subconsulta 3:
+Que se quiere obtener: Las torres que estan completamente vacias, para planificar como llenarlas.
+Funcion de la subconsulta: Devuelve la lista de ids de las torres que tienen cultivos en progreso o en mantenimiento, es decir, las torres que no estan vacias.
+Por que es adecuada: Las torres se vacian a medida que los cultivos se cosechan o se descartan, por lo que primero se necesita conocer la informacion actualizada de las torres ocupadas para luego obtener las que no estan en esa lista.
+*/
+select id_torre, ubicacion_lote as lote, ubicacion_rack as rack, capacidad_planta as capacidad
+from sistema_torre
+where id_torre not in (select id_torre from cultivos where estado in ('EN PROGRESO', 'MANTENIMIENTO'));
+GO
