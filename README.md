@@ -1,6 +1,6 @@
 # 🌱 Sistema de Gestión Hidropónica — Trabajo Práctico SQL - GRUPO 7
 
-Trabajo práctico de base de datos que modela la gestión de un sistema de cultivo hidropónico. El proyecto está desarrollado íntegramente en **SQL**, incluyendo el diseño de entidades, triggers y stored procedures.
+Trabajo práctico de base de datos que modela la gestión de un sistema de cultivo hidropónico. El proyecto está desarrollado íntegramente en **SQL**, incluyendo el diseño de entidades, triggers, stored proceduresy vistas.
 
 > ⚠️ Proyecto en desarrollo: la estructura y el contenido de este README se irán actualizando a medida que avance el trabajo.
 
@@ -20,15 +20,19 @@ Trabajo práctico de base de datos que modela la gestión de un sistema de culti
 
 ---
 
-## 📖 Descripción
+## Contexto
+La hidroponía es una técnica de cultivo sin suelo en la que las plantas crecen con sus raíces en una solución de agua y nutrientes, dentro de un ambiente controlado como un invernadero, para que el cultivo prospere, es necesario mantener estables una serie de parámetros ambientales, proveer sales de nutrición a las plantas y llevar un seguimiento detallado de cada etapa de la planta.
 
-La hidroponía es una técnica de cultivo sin suelo, donde las plantas crecen con sus raíces en una solución de agua y nutrientes. Este TP propone una base de datos para registrar y controlar:
+## Problemática
+A partir del relevamiento realizado con una persona que gestiona un cultivo, se identificó que actualmente los invernaderos son administrados mediante tareas manuales. Las personas a cargo deben controlar de forma periódica parámetros como el nivel de agua, el tiempo de cosecha y los mantenimientos de cada sistema NFT. Toda la información del cultivo se asienta en un cuaderno. Este método resulta rutinario y poco eficiente: depende de la constancia de quien registra, dificulta detectar a tiempo valores fuera de lo normal, no permite consultar el historial de forma ágil y el cultivo queda expuesto al error humano.
 
-- Los cultivos y las especies de plantas.
-- Los sistemas/módulos hidropónicos utilizados.
-- Las soluciones nutritivas y su composición.
-- Las mediciones de parámetros (pH, conductividad eléctrica, temperatura, etc.).
-- Las cosechas y su rendimiento.
+## Propuesta
+Este trabajo práctico propone el diseño de una base de datos para un sistema de gestión de invernadero que permita:
+Automatizar el control de parámetros mediante sensores que registren las mediciones de temperatura, humedad, nutrientes y nivel de agua.
+Generar alertas cuando algún parámetro se encuentre fuera del rango configurado.
+Reemplazar el registro en cuaderno por tablas que almacenen la información de cada planta y sistema: fase, fecha de plantación, fecha de cosecha y tiempo de curado.
+Gestionar a los empleados y las tareas que realizan, como poda, cosecha, corrección de pH y mantenimiento ante fallas de sensores o equipos.
+
 
 **Materia:** _[Nombre de la materia]_
 **Institución:** _[Nombre de la institución]_
@@ -69,12 +73,15 @@ La hidroponía es una técnica de cultivo sin suelo, donde las plantas crecen co
 | Entidad | Descripción |
 |---|---|
 | `Especie` | Tipo de planta cultivada (lechuga, albahaca, tomate, etc.) y sus parámetros ideales. |
-| `SistemaHidroponico` | Módulo o sistema de cultivo (NFT, DWC, goteo, etc.). |
-| `Cultivo` | Siembra concreta de una especie en un sistema, con fechas de inicio y estado. |
-| `SolucionNutritiva` | Mezcla de nutrientes aplicada a un sistema. |
-| `Medicion` | Registro de pH, conductividad (EC), temperatura y nivel de agua. |
-| `Cosecha` | Resultado de un cultivo: fecha, cantidad y calidad. |
-| `Operario` | Persona responsable de las tareas de mantenimiento. |
+| `Sistema_Torre` | Cada torre pose parametros como ubicacion y agua, donde se cultivaran las plantas|
+| `Cultivos` | Siembra concreta de una especie en un sistema, con fechas de inicio y estado. |
+| `Tareas` | Tareas que se deben realizar en base a los estados de las torres hidroponicas |
+| `Tipo_tareas` | Descripción de cada tarea que se debe realizar|
+| `Sensor` | Para medir los valores de las torres, se deben colocar sensores que registran las mediciones. Cada torre tiene sensores|
+| `Etapa` | Descripcion de las etapas que atraviesa un cultivo |
+| `Especie_etapa` | Se registra la etapa de cada especie con el valor de sus nutrientes |
+| `Medicion` |  Valores obtenidos de cada sensor|
+| `Empleado` | Persona responsable de las tareas de mantenimiento. |
 
 ### Diagrama Entidad-Relación
 
@@ -82,19 +89,13 @@ La hidroponía es una técnica de cultivo sin suelo, donde las plantas crecen co
 
 ## ⚡ Triggers
 
-| Trigger | Tabla | Evento | Descripción |
-|---|---|---|---|
-| `_[tr_nombre]_` | `_[Tabla]_` | `_[INSERT/UPDATE/DELETE]_` | _[Ej: genera una alerta cuando el pH medido sale del rango ideal de la especie]_ |
-| `_[tr_nombre]_` | `_[Tabla]_` | `_[INSERT/UPDATE/DELETE]_` | _[Ej: actualiza el estado del cultivo a "Cosechado" al registrar una cosecha]_ |
+
 
 ---
 
 ## 🔧 Stored Procedures
 
-| Procedimiento | Parámetros | Descripción |
-|---|---|---|
-| `_[sp_nombre]_` | `_[@param1, @param2]_` | _[Ej: registra una nueva medición validando los datos]_ |
-| `_[sp_nombre]_` | `_[@param1]_` | _[Ej: devuelve el rendimiento de cosechas por especie en un período]_ |
+
 
 ---
 
@@ -131,13 +132,13 @@ SELECT * FROM Cultivo WHERE Estado = 'Activo';
 
 ## 👥 Integrantes
 
-| Nombre | Legajo | grupo 7
+| Nombre | grupo 7
 |---|---|---|
-| Alejandro Zoilo Guzman | _[00000]_ 
-| Diego Rua| _[00000]_ 
-| Macarena Molina | _[00000]_ 
-| Nicolas | _[00000]_ 
-| Guido Botta | _[00000]_ 
+| Alejandro Zoilo Guzman | 
+| Diego Rua| 
+| Macarena Molina | 
+| Nicolas | 
+| Guido Botta | 
 
 
 ---
