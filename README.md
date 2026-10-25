@@ -73,12 +73,15 @@ Gestionar a los empleados y las tareas que realizan, como poda, cosecha, correcc
 | Entidad | Descripción |
 |---|---|
 | `Especie` | Tipo de planta cultivada (lechuga, albahaca, tomate, etc.) y sus parámetros ideales. |
-| `SistemaHidroponico` | Módulo o sistema de cultivo (NFT, DWC, goteo, etc.). |
-| `Cultivo` | Siembra concreta de una especie en un sistema, con fechas de inicio y estado. |
-| `SolucionNutritiva` | Mezcla de nutrientes aplicada a un sistema. |
-| `Medicion` | Registro de pH, conductividad (EC), temperatura y nivel de agua. |
-| `Cosecha` | Resultado de un cultivo: fecha, cantidad y calidad. |
-| `Operario` | Persona responsable de las tareas de mantenimiento. |
+| `Sistema_Torre` | Cada torre pose parametros como ubicacion y agua, donde se cultivaran las plantas|
+| `Cultivos` | Siembra concreta de una especie en un sistema, con fechas de inicio y estado. |
+| `Tareas` | Tareas que se deben realizar en base a los estados de las torres hidroponicas |
+| `Tipo_tareas` | Descripción de cada tarea que se debe realizar|
+| `Sensor` | Para medir los valores de las torres, se deben colocar sensores que registran las mediciones. Cada torre tiene sensores|
+| `Etapa` | Descripcion de las etapas que atraviesa un cultivo |
+| `Especie_etapa` | Se registra la etapa de cada especie con el valor de sus nutrientes |
+| `Medicion` |  Valores obtenidos de cada sensor|
+| `Empleado` | Persona responsable de las tareas de mantenimiento. |
 
 ### Diagrama Entidad-Relación
 
@@ -86,19 +89,13 @@ Gestionar a los empleados y las tareas que realizan, como poda, cosecha, correcc
 
 ## ⚡ Triggers
 
-| Trigger | Tabla | Evento | Descripción |
-|---|---|---|---|
-| `_[tr_nombre]_` | `_[Tabla]_` | `_[INSERT/UPDATE/DELETE]_` | _[Ej: genera una alerta cuando el pH medido sale del rango ideal de la especie]_ |
-| `_[tr_nombre]_` | `_[Tabla]_` | `_[INSERT/UPDATE/DELETE]_` | _[Ej: actualiza el estado del cultivo a "Cosechado" al registrar una cosecha]_ |
+
 
 ---
 
 ## 🔧 Stored Procedures
 
-| Procedimiento | Parámetros | Descripción |
-|---|---|---|
-| `_[sp_nombre]_` | `_[@param1, @param2]_` | _[Ej: registra una nueva medición validando los datos]_ |
-| `_[sp_nombre]_` | `_[@param1]_` | _[Ej: devuelve el rendimiento de cosechas por especie en un período]_ |
+
 
 ---
 
