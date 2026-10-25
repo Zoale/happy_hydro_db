@@ -22,24 +22,89 @@ GO
 
  
 -- 2. ESPECIE (30 registros)
- 
+
 SET IDENTITY_INSERT especie ON;
-INSERT INTO especie (id_especie, nombre, ph_optimo, ec_optimo, temp_agua_optimo) VALUES
-(1, 'Lechuga Capuchina', 6.0, 1.2, 20.5), (2, 'Lechuga Criolla', 6.2, 1.3, 20.0), (3, 'Albahaca Genovesa', 6.5, 1.6, 22.0),
-(4, 'Acelga Verde', 6.8, 1.8, 19.5), (5, 'Espinaca Baby', 6.3, 1.5, 18.0), (6, 'Rucula Salvaje', 6.0, 1.4, 21.0),
-(7, 'Perejil Liso', 6.5, 1.4, 20.0), (8, 'Cilantro', 6.6, 1.5, 22.5), (9, 'Menta Piperita', 6.0, 1.5, 21.0),
-(10, 'Tomate Cherry', 6.2, 2.2, 23.0), (11, 'Morron Rojo', 6.4, 2.0, 22.0), (12, 'Frutilla San Andreas', 5.8, 1.5, 19.0),
-(13, 'Berenjena', 6.2, 2.3, 24.0), (14, 'Ciboulette', 6.5, 1.3, 18.5), (15, 'Orégano', 7.0, 1.4, 20.5),
-(16, 'Tomillo', 6.5, 1.3, 21.0), (17, 'Romero', 6.8, 1.2, 22.0), (18, 'Verdeo', 6.5, 1.6, 19.0),
-(19, 'Brocoli Mini', 6.5, 2.0, 17.5), (20, 'Coliflor Mini', 6.7, 2.1, 18.0), (21, 'Lechuga Roja', 6.0, 1.2, 20.0),
-(22, 'Radicheta', 6.2, 1.4, 19.0), (23, 'Kale', 6.5, 1.8, 17.0), (24, 'Hinojo', 6.4, 1.7, 20.0),
-(25, 'Apio', 6.5, 1.9, 19.0), (26, 'Pak Choi', 6.3, 1.6, 21.0), (27, 'Tatsoi', 6.2, 1.5, 20.5),
-(28, 'Salvia', 6.5, 1.3, 21.5), (29, 'Melisa', 6.3, 1.4, 20.0), (30, 'Estevia', 6.8, 1.3, 23.0);
+INSERT INTO especie (id_especie, nombre) VALUES
+(1, 'Lechuga Capuchina'), (2, 'Lechuga Criolla'), (3, 'Albahaca Genovesa'),
+(4, 'Acelga Verde'), (5, 'Espinaca Baby'), (6, 'Rucula Salvaje'),
+(7, 'Perejil Liso'), (8, 'Cilantro'), (9, 'Menta Piperita'),
+(10, 'Tomate Cherry'), (11, 'Morron Rojo'), (12, 'Frutilla San Andreas'),
+(13, 'Berenjena'), (14, 'Ciboulette'), (15, 'Orégano'),
+(16, 'Tomillo'), (17, 'Romero'), (18, 'Verdeo'),
+(19, 'Brocoli Mini'), (20, 'Coliflor Mini'), (21, 'Lechuga Roja'),
+(22, 'Radicheta'), (23, 'Kale'), (24, 'Hinojo'),
+(25, 'Apio'), (26, 'Pak Choi'), (27, 'Tatsoi'),
+(28, 'Salvia'), (29, 'Melisa'), (30, 'Estevia');
 SET IDENTITY_INSERT especie OFF;
 GO
 
+-- 3. ETAPA (5 registros)
+
+SET IDENTITY_INSERT etapa ON;
+INSERT INTO etapa (id_etapa, nombre, orden) VALUES
+(1, 'Germinacion', 1),
+(2, 'Plantula', 2),
+(3, 'Crecimiento Vegetativo', 3),
+(4, 'Floracion', 4),
+(5, 'Cosecha', 5);
+SET IDENTITY_INSERT etapa OFF;
+GO
+
+-- 4. ESPECIE_ETAPA (30 registros)
+
+INSERT INTO especie_etapa (id_especie, id_etapa, dias_duracion, ph_min, ph_max, ec_min, ec_max, temp_min, temp_max) VALUES
+(1, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (2, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(3, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (4, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(5, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (6, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(7, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (8, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(9, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (10, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(11, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (12, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(13, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (14, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(15, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (16, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(17, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (18, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(19, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (20, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(21, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (22, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(23, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (24, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(25, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (26, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(27, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (28, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0),
+(29, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0), (30, 3, 30, 5.5, 7.5, 0.80, 3.00, 15.0, 28.0);
+GO
+
+-- 5. SENSOR (30 registros)
+
+SET IDENTITY_INSERT sensor ON;
+INSERT INTO sensor (id_sensor, id_torre, modelo, activo) VALUES
+(1, 1, NULL, 1), (2, 2, NULL, 1), (3, 3, NULL, 1), (4, 4, NULL, 1), (5, 5, NULL, 1),
+(6, 6, NULL, 1), (7, 7, NULL, 1), (8, 8, NULL, 1), (9, 9, NULL, 1), (10, 10, NULL, 1),
+(11, 11, NULL, 1), (12, 12, NULL, 1), (13, 13, NULL, 1), (14, 14, NULL, 1), (15, 15, NULL, 1),
+(16, 16, NULL, 1), (17, 17, NULL, 1), (18, 18, NULL, 1), (19, 19, NULL, 1), (20, 20, NULL, 1),
+(21, 21, NULL, 1), (22, 22, NULL, 1), (23, 23, NULL, 1), (24, 24, NULL, 1), (25, 25, NULL, 1),
+(26, 26, NULL, 1), (27, 27, NULL, 1), (28, 28, NULL, 1), (29, 29, NULL, 1), (30, 30, NULL, 1);
+SET IDENTITY_INSERT sensor OFF;
+GO
+
+-- 6. MEDICION (30 registros)
+
+INSERT INTO medicion (id_sensor, fecha_hora, ph, ec, temp_agua) VALUES
+(1, '2026-01-05 08:00:00', 6.1, 1.2, 20.2), (1, '2026-01-10 08:00:00', 6.0, 1.3, 20.4),
+(2, '2026-01-12 09:30:00', 6.2, 1.3, 19.8), (2, '2026-01-18 10:00:00', 6.3, 1.4, 20.1),
+(3, '2026-01-15 08:15:00', 6.5, 1.6, 21.9), (3, '2026-01-20 08:15:00', 6.4, 1.5, 22.0),
+(4, '2026-01-22 09:00:00', 6.7, 1.7, 19.2), (4, '2026-01-25 09:00:00', 6.8, 1.8, 19.5),
+(5, '2026-01-28 07:45:00', 6.3, 1.5, 18.1), (6, '2026-02-01 11:00:00', 6.0, 1.1, 21.2),
+(7, '2026-02-05 08:30:00', 6.5, 1.4, 20.0), (8, '2026-02-10 08:30:00', 6.6, 1.5, 22.1),
+(9, '2026-02-14 09:00:00', 6.0, 1.5, 21.0), (10, '2026-02-16 10:00:00', 6.2, 2.1, 22.8),
+(11, '2026-02-18 08:00:00', 6.4, 2.0, 22.0), (12, '2026-02-20 08:00:00', 5.8, 1.5, 19.0),
+(13, '2026-02-22 09:00:00', 6.2, 2.2, 23.9), (14, '2026-02-24 10:30:00', 6.5, 1.3, 18.5),
+(15, '2026-02-28 08:00:00', 7.0, 1.4, 20.4), (16, '2026-03-02 08:00:00', 6.5, 1.3, 21.0),
+(17, '2026-03-05 09:00:00', 6.8, 1.2, 21.8), (18, '2026-03-07 08:00:00', 6.5, 1.6, 19.0),
+(19, '2026-03-10 08:00:00', 6.5, 2.0, 17.5), (20, '2026-03-12 08:00:00', 6.7, 2.1, 18.0),
+(21, '2026-03-14 09:00:00', 6.0, 1.2, 20.1), (22, '2026-03-16 08:00:00', 6.2, 1.4, 19.0),
+(23, '2026-03-20 08:00:00', 6.5, 1.8, 17.0), (24, '2026-03-22 08:00:00', 6.4, 1.7, 20.0),
+(25, '2026-03-25 09:00:00', 6.5, 1.9, 19.0), (26, '2026-03-28 08:00:00', 6.3, 1.6, 21.0);
+GO
+
  
--- 3. CULTIVOS (30 registros)
+-- 7. CULTIVOS (30 registros)
  
 SET IDENTITY_INSERT cultivos ON;
 INSERT INTO cultivos (id_cultivo, id_especie, id_torre, fecha_inicio, fecha_cosecha, estado, cantidad_plantas) VALUES
@@ -61,47 +126,7 @@ INSERT INTO cultivos (id_cultivo, id_especie, id_torre, fecha_inicio, fecha_cose
 SET IDENTITY_INSERT cultivos OFF;
 GO
 
- 
--- 4. PARAMETROS (30 registros)
- 
-SET IDENTITY_INSERT parametros ON;
-INSERT INTO parametros (id_parametro, parametro_descripcion, maximo, minimo) VALUES
-(1, 'pH del Agua', 7.5, 5.5), (2, 'Electroconductividad (EC)', 3.0, 0.8), (3, 'Temperatura del Agua', 28.0, 15.0),
-(4, 'Oxigeno Disuelto', 10.0, 4.0), (5, 'Humedad Relativa Invernadero', 90.0, 40.0), (6, 'Temperatura Ambiente', 35.0, 12.0),
-(7, 'Nivel de Nitrogeno (N)', 200.0, 50.0), (8, 'Nivel de Fosforo (P)', 100.0, 20.0), (9, 'Nivel de Potasio (K)', 250.0, 80.0),
-(10, 'Calcio (Ca)', 180.0, 40.0), (11, 'Magnesio (Mg)', 90.0, 20.0), (12, 'Hierro (Fe)', 5.0, 0.5),
-(13, 'Turbidez del Agua', 15.0, 0.0), (14, 'Luminosidad (PAR)', 1000.0, 200.0), (15, 'CO2 Ambiental', 1200.0, 400.0),
-(16, 'Salinidad Total (TDS)', 2000.0, 500.0), (17, 'Flujo de Bombeo', 50.0, 5.0), (18, 'Presion de Linea', 4.0, 1.0),
-(19, 'Zinc (Zn)', 2.0, 0.1), (20, 'Manganeso (Mn)', 3.0, 0.2), (21, 'Boro (B)', 1.5, 0.1),
-(22, 'Cobre (Cu)', 0.5, 0.02), (23, 'Molibdeno (Mo)', 0.2, 0.01), (24, 'Azufre (S)', 150.0, 20.0),
-(25, 'Dureza del Agua', 250.0, 50.0), (26, 'Cloro Libre', 1.0, 0.0), (27, 'Horas de Luz Diaria', 18.0, 8.0),
-(28, 'Velocidad de Viento Interno', 5.0, 0.0), (29, 'Democloracion', 0.5, 0.0), (30, 'Bio-indicador de Plagas', 1.0, 0.0);
-SET IDENTITY_INSERT parametros OFF;
-GO
-
- 
--- 5. PARAMETROS_POR_CULTIVO (30 registros)
- 
-INSERT INTO parametros_por_cultivo (id_cultivo, id_parametro, ph_actual, ec_actual, temp_agua_actual, fecha_medicion) VALUES
-(1, 1, 6.1, 1.2, 20.2, '2026-01-05 08:00:00'), (1, 2, 6.0, 1.3, 20.4, '2026-01-10 08:00:00'),
-(2, 1, 6.2, 1.3, 19.8, '2026-01-12 09:30:00'), (2, 3, 6.3, 1.4, 20.1, '2026-01-18 10:00:00'),
-(3, 1, 6.5, 1.6, 21.9, '2026-01-15 08:15:00'), (3, 2, 6.4, 1.5, 22.0, '2026-01-20 08:15:00'),
-(4, 1, 6.7, 1.7, 19.2, '2026-01-22 09:00:00'), (4, 3, 6.8, 1.8, 19.5, '2026-01-25 09:00:00'),
-(5, 1, 6.3, 1.5, 18.1, '2026-01-28 07:45:00'), (6, 2, 6.0, 1.1, 21.2, '2026-02-01 11:00:00'),
-(7, 1, 6.5, 1.4, 20.0, '2026-02-05 08:30:00'), (8, 2, 6.6, 1.5, 22.1, '2026-02-10 08:30:00'),
-(9, 3, 6.0, 1.5, 21.0, '2026-02-14 09:00:00'), (10, 1, 6.2, 2.1, 22.8, '2026-02-16 10:00:00'),
-(11, 2, 6.4, 2.0, 22.0, '2026-02-18 08:00:00'), (12, 1, 5.8, 1.5, 19.0, '2026-02-20 08:00:00'),
-(13, 3, 6.2, 2.2, 23.9, '2026-02-22 09:00:00'), (14, 1, 6.5, 1.3, 18.5, '2026-02-24 10:30:00'),
-(15, 2, 7.0, 1.4, 20.4, '2026-02-28 08:00:00'), (16, 1, 6.5, 1.3, 21.0, '2026-03-02 08:00:00'),
-(17, 3, 6.8, 1.2, 21.8, '2026-03-05 09:00:00'), (18, 1, 6.5, 1.6, 19.0, '2026-03-07 08:00:00'),
-(19, 2, 6.5, 2.0, 17.5, '2026-03-10 08:00:00'), (20, 1, 6.7, 2.1, 18.0, '2026-03-12 08:00:00'),
-(21, 3, 6.0, 1.2, 20.1, '2026-03-14 09:00:00'), (22, 1, 6.2, 1.4, 19.0, '2026-03-16 08:00:00'),
-(23, 2, 6.5, 1.8, 17.0, '2026-03-20 08:00:00'), (24, 1, 6.4, 1.7, 20.0, '2026-03-22 08:00:00'),
-(25, 3, 6.5, 1.9, 19.0, '2026-03-25 09:00:00'), (26, 1, 6.3, 1.6, 21.0, '2026-03-28 08:00:00');
-GO
-
- 
--- 6. EMPLEADO (30 registros)
+-- 8. EMPLEADO (30 registros)
  
 SET IDENTITY_INSERT empleado ON;
 INSERT INTO empleado (id_empleado, nombre, apellido) VALUES
@@ -117,7 +142,7 @@ SET IDENTITY_INSERT empleado OFF;
 GO
 
 
--- 7. TIPO_TAREAS (30 registros)
+-- 9. TIPO_TAREAS (30 registros)
 
 SET IDENTITY_INSERT tipo_tareas ON;
 INSERT INTO tipo_tareas (id_tipo_tarea, nombre, descripcion) VALUES
@@ -154,11 +179,11 @@ INSERT INTO tipo_tareas (id_tipo_tarea, nombre, descripcion) VALUES
 SET IDENTITY_INSERT tipo_tareas OFF;
 GO
 
--- 8. TAREAS (30 registros)
+-- 10. TAREAS (30 registros)
 -- Validaciones aplicadas: Fechas coherentes con los estados.
 
 SET IDENTITY_INSERT tareas ON;
-INSERT INTO tareas (id_tarea, id_tipo_tarea, id_torre, id_cultivo, id_empleado, fecha_programada, fecha_ejecutada, estado, observaciones) VALUES
+INSERT INTO tareas (id_tarea, id_tipo_tarea, id_torre, id_cultivo, id_empleado, fecha_programada, fecha_ejecutada, estado_tarea, observaciones) VALUES
 (1, 1, 1, 1, 1, '2026-01-02', '2026-01-02', 'FINALIZADA', 'Medicion inicial dentro de parametros optimos'),
 (2, 2, 2, 2, 2, '2026-01-06', '2026-01-06', 'FINALIZADA', 'EC estable en torre 2'),
 (3, 3, 3, 3, 3, '2026-01-12', '2026-01-13', 'FINALIZADA', 'Limpieza profunda realizada con exito'),
