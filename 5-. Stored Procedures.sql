@@ -50,10 +50,10 @@ CREATE PROCEDURE SP_FinalizarTarea
 AS
 BEGIN
     UPDATE tareas
-    SET estado = 'FINALIZADA',
+    SET estado_tarea = 'FINALIZADA',
         fecha_ejecutada = GETDATE()
     WHERE id_tarea = @id_tarea
-      AND estado IN ('PROGRAMADA', 'EN PROGRESO')
+      AND estado_tarea IN ('PROGRAMADA', 'EN PROGRESO')
       AND fecha_programada <= GETDATE();
 END;
 GO

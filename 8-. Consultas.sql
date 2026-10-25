@@ -59,7 +59,7 @@ select t.id_tarea, t.id_torre, e.nombre as nombre_empleado, e.apellido as apelli
 from tareas t
 join tipo_tareas as x on t.id_tipo_tarea = x.id_tipo_tarea
 join empleado as e on t.id_empleado = e.id_empleado
-where t.estado = 'FINALIZADA'
+where t.estado_tarea = 'FINALIZADA'
 order by t.fecha_ejecutada desc;
 GO
 
@@ -108,7 +108,7 @@ SELECT
     COUNT(t.id_tarea) AS total_tareas,
     SUM(
         CASE
-            WHEN t.estado = 'FINALIZADA' THEN 1
+            WHEN t.estado_tarea = 'FINALIZADA' THEN 1
             ELSE 0
         END
     ) AS tareas_finalizadas

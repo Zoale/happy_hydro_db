@@ -22,7 +22,7 @@ Por que es adecuada: Primero se necesita saber quien tiene asignadas tareas pend
 */
 select id_empleado, nombre, apellido
 from empleado
-where id_empleado in (select id_empleado from tareas where estado = 'PENDIENTE');
+where id_empleado in (select id_empleado from tareas where estado_tarea = 'PENDIENTE');
 GO
 
 /*
