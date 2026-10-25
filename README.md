@@ -65,7 +65,7 @@ Los scripts están numerados según el orden en que deben ejecutarse: cada uno d
 
 ## 🗂 Modelo de datos
 
-### Entidades principales (tentativas)
+### Entidades principales 
 
 | Entidad         | Descripción                                                                                                             |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------- |
