@@ -9,5 +9,5 @@ SELECT c.id_torre, c.estado , s.agua_actual , e.nombre AS especie ,  s.ubicacion
 FROM cultivos as c
 JOIN sistema_torre as s ON s.id_torre= c.id_torre
 JOIN especie as e ON e.id_especie = c.id_especie
-WHERE c.estado = 'MANTENIMIENTO';
+WHERE c.estado = 'EN PROGRESO';
 GO
