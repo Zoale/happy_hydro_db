@@ -125,7 +125,7 @@ CREATE TABLE cultivos (
     cantidad_plantas INT NULL,
     CONSTRAINT FK_cultivo_especie FOREIGN KEY (id_especie) REFERENCES especie(id_especie),
     CONSTRAINT FK_cultivo_torre FOREIGN KEY (id_torre) REFERENCES sistema_torre(id_torre),
-    CONSTRAINT CHK_estado_cultivo CHECK (estado IN ('EN PROGRESO', 'COSECHADO', 'MUERTO', 'MANTENIMIENTO')),
+    CONSTRAINT CHK_estado_cultivo CHECK (estado IN ('EN PROGRESO', 'COSECHADO', 'MUERTO')),
     CONSTRAINT CHK_plantas CHECK (cantidad_plantas IS NULL OR cantidad_plantas > 0),
     CONSTRAINT CHK_fecha_cosecha CHECK (fecha_cosecha IS NULL OR fecha_cosecha >= fecha_inicio)
 );
@@ -177,11 +177,11 @@ CREATE TABLE tareas (
     CONSTRAINT FK_tarea_torre FOREIGN KEY (id_torre) REFERENCES sistema_torre(id_torre),
     CONSTRAINT FK_tarea_cultivo FOREIGN KEY (id_cultivo) REFERENCES cultivos(id_cultivo),
     CONSTRAINT FK_tarea_empleado FOREIGN KEY (id_empleado) REFERENCES empleado(id_empleado),
-    CONSTRAINT CHK_estado_tarea CHECK (estado_tarea IN ('PENDIENTE', 'PROGRAMADA', 'EN PROGRESO', 'FINALIZADA', 'CANCELADA')),
+    CONSTRAINT CHK_estado_tarea CHECK (estado_tarea IN ('PENDIENTE', 'ASIGNADA', 'EN PROGRESO', 'FINALIZADA', 'CANCELADA')),
     CONSTRAINT CHK_fecha_prog CHECK (
-        estado_tarea NOT IN ('PROGRAMADA', 'EN PROGRESO', 'FINALIZADA')
-        OR fecha_programada IS NOT NULL
-    ),
+    estado_tarea NOT IN ('ASIGNADA', 'EN PROGRESO', 'FINALIZADA')
+    OR fecha_programada IS NOT NULL
+),
     CONSTRAINT CHK_fecha_ejec CHECK (
         estado_tarea <> 'FINALIZADA'
         OR fecha_ejecutada IS NOT NULL
