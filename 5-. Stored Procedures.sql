@@ -135,8 +135,9 @@ BEGIN
  */
 
 CREATE PROCEDURE SP_altaEmpleados
-@nombre varchar(15)
-@apellido varchar(15)
+@nombre varchar(15),
+@apellido varchar(15),
+@id_empleado int output
 
 AS
 BEGIN 
@@ -147,11 +148,10 @@ BEGIN
         
     )
     VALUES (
-       @id_empleado INT
-       @nombre varchar(15)
-       @apellido varchar(15)
+       @id_empleado,
+       @nombre,
+       @apellido
 
-        
     );
     END;
     GO
