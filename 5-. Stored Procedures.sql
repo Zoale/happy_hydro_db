@@ -39,7 +39,7 @@ GO
  * Procedimiento: SP_FinalizarTarea
  *
  * Permite finalizar una tarea existente.
- * Verifica que se encuentre PROGRAMADA o EN PROGRESO
+ * Verifica que se encuentre EN PROGRESO
  * y que su fecha programada no sea posterior a la actual.
  * Actualiza su estado a FINALIZADA y registra la fecha de ejecución.
  *
@@ -53,7 +53,76 @@ BEGIN
     SET estado_tarea = 'FINALIZADA',
         fecha_ejecutada = GETDATE()
     WHERE id_tarea = @id_tarea
-      AND estado_tarea IN ('PROGRAMADA', 'EN PROGRESO')
+      AND estado_tarea IN 'EN PROGRESO'
       AND fecha_programada <= GETDATE();
 END;
 GO
+
+/*
+ * Procedimiento: SP_CultivoMuerto
+ *
+ * Cambiar el estado de un cultivo "EN PROGRESO" a "MUERTO" por perdida del mismo
+ *
+ * Objetivo: automatizar la finalización de tareas.
+ */
+
+CREATE PROCEDURE SP_CultivoMuerto
+@id_cultivo INT
+AS
+BEGIN 
+    UPDATE cultivos
+    SET estado  = 'MUERTO'
+    WHERE id_cultivo = @id_cultivo AND estado  = 'EN PROGRESO'
+    END;
+    GO
+
+
+/*
+ * Procedimiento: SP_CultivoMuerto
+ *
+ * Cambiar el estado de un cultivo "EN PROGRESO" a "COSECHADO" al finalizar el mismo
+ * registrando fecha de cosecha
+ * Objetivo: automatizar la finalización de tareas.
+ */
+
+CREATE PROCEDURE SP_CultivoCosechado
+@id_cultivo INT
+AS
+BEGIN 
+    UPDATE cultivos
+    SET estado  = 'COSECHADO', fecha_cosecha = GETDATE();
+    WHERE id_cultivo = @id_cultivo AND estado  = 'EN PROGRESO'
+    END;
+    GO
+
+/*
+ * Procedimiento: SP_SensorReporte
+ *
+ * Actulizar la medicion del PH, EC , TEMP y Nivel de agua de una torre
+ * reportada por la API del sensor
+ *
+ */
+
+CREATE PROCEDURE SP_SensorReporte
+@id_sensor INT
+@ph decimal(3,1)
+@ec decimal(3,1)
+@temp_agua decimal(4,2)
+AS
+BEGIN 
+    INSERT INTO medicion(
+        id_sensor,
+        fecha_hora,
+        ph,
+        ec,
+        temp_agua
+    )
+    VALUES (
+        @id_sensor,
+        GETDATE(),
+        @ph,
+        @ec,
+        @temp_agua
+    );
+    END;
+    GO
