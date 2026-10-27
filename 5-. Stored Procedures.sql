@@ -134,21 +134,18 @@ BEGIN
  *
  */
 
-CREATE PROCEDURE SP_altaEmpleados
+ALTER PROCEDURE SP_altaEmpleados
 @nombre varchar(15),
-@apellido varchar(15),
-@id_empleado int output
+@apellido varchar(15)
+
 
 AS
 BEGIN 
     INSERT INTO empleado(
-        id_empleado,
         nombre,
         apellido
-        
     )
     VALUES (
-       @id_empleado,
        @nombre,
        @apellido
 
