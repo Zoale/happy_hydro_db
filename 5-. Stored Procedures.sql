@@ -126,3 +126,32 @@ BEGIN
     );
     END;
     GO
+
+/*
+ * Procedimiento: SP_altaEmpleados
+ *
+ * Da de alta la nomina de empleados
+ *
+ */
+
+CREATE PROCEDURE SP_altaEmpleados
+@nombre varchar(15)
+@apellido varchar(15)
+
+AS
+BEGIN 
+    INSERT INTO empleado(
+        id_empleado,
+        nombre,
+        apellido
+        
+    )
+    VALUES (
+       @id_empleado INT
+       @nombre varchar(15)
+       @apellido varchar(15)
+
+        
+    );
+    END;
+    GO
