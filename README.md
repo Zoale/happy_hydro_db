@@ -121,6 +121,13 @@ SELECT * FROM cultivos WHERE estado = 'EN PROGRESO';
 
 > Los ejemplos se actualizarán según la implementación final.
 
+
+Trello
+
+```bash
+https://trello.com/b/atc55BkM/tp-ing-datos-i
+```
+
 ## 👥 Integrantes
 
 | Integrantes — Grupo 7  |
