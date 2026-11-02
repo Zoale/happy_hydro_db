@@ -11,12 +11,11 @@ GO
  *
  * Objetivo: evitar que una torre exceda su capacidad.
  */
-CREATE TRIGGER TR_ValidarCapacidadTorre
+ALTER TRIGGER TR_ValidarCapacidadTorre
 ON cultivos
 AFTER INSERT, UPDATE
 AS
 BEGIN
-    -- Verificamos si alguna torre supera su capacidad.
     IF EXISTS (
         SELECT 1
         FROM sistema_torre AS st
@@ -26,10 +25,7 @@ BEGIN
             SELECT ISNULL(SUM(c.cantidad_plantas), 0)
             FROM cultivos AS c
             WHERE c.id_torre = st.id_torre
-              AND c.estado IN (
-                  'EN PROGRESO',
-                  'MANTENIMIENTO'
-              )
+              AND c.estado = 'EN PROGRESO'
         ) > st.capacidad_planta
     )
     BEGIN
@@ -38,8 +34,6 @@ BEGIN
     END
 END;
 GO
-
-
 /*
  * Trigger: TR_ValidarTorreTarea
  *
@@ -68,4 +62,51 @@ BEGIN
         ROLLBACK TRANSACTION;
     END
 END;
+GO
+
+/*
+TRG_cultivos_set_fecha_cosecha
+La función de este trigger es que cuando un cultivo pasa a estado COSECHADO y fecha_cosecha todavia es null,
+se completa automaticamente con la fecha actual. Si existe una fecha de cosecha, no se pisa.
+*/
+CREATE TRIGGER TRG_cultivos_set_fecha_cosecha
+ON cultivos
+AFTER UPDATE
+AS
+BEGIN
+
+    UPDATE c
+    SET c.fecha_cosecha = CAST(GETDATE() AS DATE)
+    FROM cultivos c
+    INNER JOIN inserted i ON i.id_cultivo = c.id_cultivo
+    INNER JOIN deleted d ON d.id_cultivo = c.id_cultivo
+    WHERE i.estado = 'COSECHADO'
+      AND d.estado <> 'COSECHADO'
+      AND i.fecha_cosecha IS NULL;
+END
+GO
+
+/*
+TRG_tareas_set_fecha_ejecutada
+La función de este Trigger es que cuando una tarea pasa a estado FINALIZADA y fecha_ejecutada todavia es null, se completa automaticamente. 
+Si fecha_programada es futura (caso raro, tarea programada para despues de hoy pero cerrada ahora), 
+se usa fecha_programada para no violar CHK_orden_fechas; en el caso normal se usa la fecha actual.
+*/
+CREATE TRIGGER TRG_tareas_set_fecha_ejecutada
+ON tareas
+AFTER UPDATE
+AS
+BEGIN
+    UPDATE t
+    SET t.fecha_ejecutada = CASE
+            WHEN t.fecha_programada > CAST(GETDATE() AS DATE) THEN t.fecha_programada
+            ELSE CAST(GETDATE() AS DATE)
+        END
+    FROM tareas t
+    INNER JOIN inserted i ON i.id_tarea = t.id_tarea
+    INNER JOIN deleted d ON d.id_tarea = t.id_tarea
+    WHERE i.estado_tarea = 'FINALIZADA'
+      AND d.estado_tarea <> 'FINALIZADA'
+      AND i.fecha_ejecutada IS NULL;
+END
 GO
