@@ -11,12 +11,11 @@ GO
  *
  * Objetivo: evitar que una torre exceda su capacidad.
  */
-CREATE TRIGGER TR_ValidarCapacidadTorre
+ALTER TRIGGER TR_ValidarCapacidadTorre
 ON cultivos
 AFTER INSERT, UPDATE
 AS
 BEGIN
-    -- Verificamos si alguna torre supera su capacidad.
     IF EXISTS (
         SELECT 1
         FROM sistema_torre AS st
@@ -26,10 +25,7 @@ BEGIN
             SELECT ISNULL(SUM(c.cantidad_plantas), 0)
             FROM cultivos AS c
             WHERE c.id_torre = st.id_torre
-              AND c.estado IN (
-                  'EN PROGRESO',
-                  'MANTENIMIENTO'
-              )
+              AND c.estado = 'EN PROGRESO'
         ) > st.capacidad_planta
     )
     BEGIN
@@ -38,8 +34,6 @@ BEGIN
     END
 END;
 GO
-
-
 /*
  * Trigger: TR_ValidarTorreTarea
  *
