@@ -4,9 +4,9 @@ GO
 --Usamos la función SET IDENTITY_INSERT 'nombre de table' ON/OFF; Para ajustar de manera manual,
 --la inserción de todos los ids, por lo menos los primeros agregados y así evitarnos errores,
 --y así mejorar el manejo de los datos agregados de manera masiva como lo haremos en esta ocasión:
- 
+
 -- 1. SISTEMA_TORRE (30 registros)
- 
+
 SET IDENTITY_INSERT sistema_torre ON;
 INSERT INTO sistema_torre (id_torre, max_agua, capacidad_planta, ubicacion_lote, ubicacion_rack, agua_actual) VALUES
 (1, 50.00, 20, 'A', '1', 40), (2, 50.00, 20, 'A', '2', 45), (3, 60.00, 24, 'A', '3', 50), (4, 60.00, 24, 'A', '4', 30),
@@ -20,7 +20,7 @@ INSERT INTO sistema_torre (id_torre, max_agua, capacidad_planta, ubicacion_lote,
 SET IDENTITY_INSERT sistema_torre OFF;
 GO
 
- 
+
 -- 2. ESPECIE (30 registros)
 
 SET IDENTITY_INSERT especie ON;
@@ -122,9 +122,9 @@ INSERT INTO medicion (id_sensor, fecha_hora, ph, ec, temp_agua) VALUES
 (30, '2026-04-05T08:00:00', 6.5, 1.5, 20.9);
 GO
 
- 
+
 -- 7. CULTIVOS (30 registros)
- 
+
 SET IDENTITY_INSERT cultivos ON;
 INSERT INTO cultivos (id_cultivo, id_especie, id_torre, fecha_inicio, fecha_cosecha, estado, cantidad_plantas) VALUES
 (1, 1, 1, '2026-01-01', '2026-02-15', 'COSECHADO', 18), (2, 2, 2, '2026-01-05', '2026-02-20', 'COSECHADO', 20),
@@ -146,17 +146,17 @@ SET IDENTITY_INSERT cultivos OFF;
 GO
 
 -- 8. EMPLEADO (30 registros)
- 
+
 SET IDENTITY_INSERT empleado ON;
-INSERT INTO empleado (id_empleado, nombre, apellido) VALUES
-(1, 'Carlos', 'Gomez'), (2, 'Maria', 'Perez'), (3, 'Juan', 'Rodríguez'), (4, 'Ana', 'López'),
-(5, 'Lucas', 'Martínez'), (6, 'Sofía', 'Fernández'), (7, 'Mateo', 'García'), (8, 'Valentina', 'González'),
-(9, 'Diego', 'Hernández'), (10, 'Camila', 'Martín'), (11, 'Joaquín', 'Ruiz'), (12, 'Lucía', 'Díaz'),
-(13, 'Gabriel', 'Álvarez'), (14, 'Martina', 'Moreno'), (15, 'Federico', 'Muñoz'), (16, 'Florencia', 'Rojas'),
-(17, 'Agustín', 'Navarro'), (18, 'Victoria', 'Torres'), (19, 'Ignacio', 'Domínguez'), (20, 'Catalina', 'Vázquez'),
-(21, 'Nicolás', 'Ramos'), (22, 'Julieta', 'Gil'), (23, 'Tomás', 'Serrano'), (24, 'Renata', 'Blanco'),
-(25, 'Emiliano', 'Molina'), (26, 'Antonella', 'Morales'), (27, 'Bautista', 'Suárez'), (28, 'Mía', 'Ortega'),
-(29, 'Benjamín', 'Castro'), (30, 'Abigail', 'Rubio');
+INSERT INTO empleado (id_empleado, nombre, apellido, estado) VALUES
+(1, 'Carlos', 'Gomez', 1), (2, 'Maria', 'Perez', 1), (3, 'Juan', 'Rodríguez', 1), (4, 'Ana', 'López', 1),
+(5, 'Lucas', 'Martínez', 1), (6, 'Sofía', 'Fernández', 1), (7, 'Mateo', 'García', 1), (8, 'Valentina', 'González', 1),
+(9, 'Diego', 'Hernández', 1), (10, 'Camila', 'Martín', 1), (11, 'Joaquín', 'Ruiz', 1), (12, 'Lucía', 'Díaz', 1),
+(13, 'Gabriel', 'Álvarez', 1), (14, 'Martina', 'Moreno', 1), (15, 'Federico', 'Muñoz', 1), (16, 'Florencia', 'Rojas', 1),
+(17, 'Agustín', 'Navarro', 1), (18, 'Victoria', 'Torres', 1), (19, 'Ignacio', 'Domínguez', 1), (20, 'Catalina', 'Vázquez', 1),
+(21, 'Nicolás', 'Ramos', 1), (22, 'Julieta', 'Gil', 1), (23, 'Tomás', 'Serrano', 1), (24, 'Renata', 'Blanco', 1),
+(25, 'Emiliano', 'Molina', 1), (26, 'Antonella', 'Morales', 1), (27, 'Bautista', 'Suárez', 1), (28, 'Mía', 'Ortega', 1),
+(29, 'Benjamín', 'Castro', 1), (30, 'Abigail', 'Rubio', 1);
 SET IDENTITY_INSERT empleado OFF;
 GO
 
@@ -200,38 +200,39 @@ GO
 
 -- 10. TAREAS (30 registros)
 -- Validaciones aplicadas: Fechas coherentes con los estados.
+-- id_torre eliminado: la torre de una tarea se obtiene a traves de id_cultivo.
 
 SET IDENTITY_INSERT tareas ON;
-INSERT INTO tareas (id_tarea, id_tipo_tarea, id_torre, id_cultivo, id_empleado, fecha_programada, fecha_ejecutada, estado_tarea, observaciones) VALUES
-(1, 1, 1, 1, 1, '2026-01-02', '2026-01-02', 'FINALIZADA', 'Medicion inicial dentro de parametros optimos'),
-(2, 2, 2, 2, 2, '2026-01-06', '2026-01-06', 'FINALIZADA', 'EC estable en torre 2'),
-(3, 3, 3, 3, 3, '2026-01-12', '2026-01-13', 'FINALIZADA', 'Limpieza profunda realizada con exito'),
-(4, 4, 4, 4, 4, '2026-01-16', NULL, 'ASIGNADA', 'Pendiente de calibracion general'),
-(5, 5, 5, 5, 5, '2026-01-21', '2026-01-21', 'FINALIZADA', 'Siembra completada sin novedades'),
-(6, 6, 1, 1, 6, '2026-02-15', '2026-02-15', 'FINALIZADA', 'Cosecha exitosa de lechugas capuchinas'),
-(7, 7, 6, 6, 7, '2026-01-26', NULL, 'PENDIENTE', 'Requiere revision urgente'),
-(8, 8, 7, 7, 8, '2026-02-02', '2026-02-02', 'FINALIZADA', 'Recambio de agua con solucion B'),
-(9, 9, 8, 8, 9, '2026-02-06', NULL, 'EN PROGRESO', 'Aplicando control biologico preventivo'),
-(10, 10, 9, 9, 10, '2026-02-11', '2026-02-11', 'FINALIZADA', 'Bomba principal funcionando correctamente'),
-(11, 11, 10, 10, 11, '2026-02-13', NULL, 'CANCELADA', 'Se pospuso por falta de insumos'),
-(12, 12, 11, 11, 12, '2026-02-16', '2026-02-16', 'FINALIZADA', 'Paneles LED reemplazados'),
-(13, 13, 12, 12, 13, '2026-02-19', NULL, 'ASIGNADA', 'Ajuste programado de temperatura'),
-(14, 14, 13, 13, 14, '2026-02-21', '2026-02-21', 'FINALIZADA', 'Oxigenacion optima registrada'),
-(15, 15, 14, 14, 15, '2026-02-23', NULL, 'PENDIENTE', 'Limpieza de sector D'),
-(16, 16, 15, 15, 16, '2026-02-26', '2026-02-26', 'FINALIZADA', 'Niveles de agua restablecidos'),
-(17, 17, 16, 16, 17, '2026-03-02', NULL, 'EN PROGRESO', 'Rotando bandejas de cultivo'),
-(18, 18, 6, 6, 18, '2026-01-30', '2026-01-30', 'FINALIZADA', 'Retiro de plantas muertas en torre 6'),
-(19, 19, 17, 17, 19, '2026-03-04', '2026-03-04', 'FINALIZADA', 'Tablero electrico verificado'),
-(20, 20, 18, 18, 20, '2026-03-06', NULL, 'PROGRAMADA', 'Calibracion pendiente de sonda EC'),
-(21, 21, 19, 19, 21, '2026-03-09', '2026-03-09', 'FINALIZADA', 'Suplemento de calcio aplicado'),
-(22, 22, 20, 20, 22, '2026-03-11', NULL, 'PENDIENTE', 'Control de humedad ambiental'),
-(23, 23, 21, 21, 23, '2026-03-13', '2026-03-13', 'FINALIZADA', 'Saneamiento completado en sector F'),
-(24, 24, 22, 22, 24, '2026-03-16', '2026-03-16', 'FINALIZADA', 'Filtros de agua reemplazados'),
-(25, 25, 23, 23, 25, '2026-03-19', NULL, 'PROGRAMADA', 'Test de germinacion programado'),
-(26, 26, 24, 24, 26, '2026-03-21', '2026-03-21', 'FINALIZADA', 'Podado estético realizado'),
-(27, 27, 25, 25, 27, '2026-03-23', NULL, 'EN PROGRESO', 'Prueba de valvulas hidraulicas'),
-(28, 28, 26, 26, 28, '2026-03-26', '2026-03-26', 'FINALIZADA', 'Medicion de CO2 dentro del rango'),
-(29, 29, 27, 27, 29, '2026-03-29', '2026-03-29', 'FINALIZADA', 'Auditoria trimestral completada'),
-(30, 30, 28, 28, 30, '2026-04-02', '2026-04-02', 'FINALIZADA', 'Capacitacion de personal operativo efectuada');
+INSERT INTO tareas (id_tarea, id_tipo_tarea, id_cultivo, id_empleado, fecha_programada, fecha_ejecutada, estado_tarea, observaciones) VALUES
+(1, 1, 1, 1, '2026-01-02', '2026-01-02', 'FINALIZADA', 'Medicion inicial dentro de parametros optimos'),
+(2, 2, 2, 2, '2026-01-06', '2026-01-06', 'FINALIZADA', 'EC estable en torre 2'),
+(3, 3, 3, 3, '2026-01-12', '2026-01-13', 'FINALIZADA', 'Limpieza profunda realizada con exito'),
+(4, 4, 4, 4, '2026-01-16', NULL, 'ASIGNADA', 'Pendiente de calibracion general'),
+(5, 5, 5, 5, '2026-01-21', '2026-01-21', 'FINALIZADA', 'Siembra completada sin novedades'),
+(6, 6, 1, 6, '2026-02-15', '2026-02-15', 'FINALIZADA', 'Cosecha exitosa de lechugas capuchinas'),
+(7, 7, 6, 7, '2026-01-26', NULL, 'PENDIENTE', 'Requiere revision urgente'),
+(8, 8, 7, 8, '2026-02-02', '2026-02-02', 'FINALIZADA', 'Recambio de agua con solucion B'),
+(9, 9, 8, 9, '2026-02-06', NULL, 'EN PROGRESO', 'Aplicando control biologico preventivo'),
+(10, 10, 9, 10, '2026-02-11', '2026-02-11', 'FINALIZADA', 'Bomba principal funcionando correctamente'),
+(11, 11, 10, 11, '2026-02-13', NULL, 'CANCELADA', 'Se pospuso por falta de insumos'),
+(12, 12, 11, 12, '2026-02-16', '2026-02-16', 'FINALIZADA', 'Paneles LED reemplazados'),
+(13, 13, 12, 13, '2026-02-19', NULL, 'ASIGNADA', 'Ajuste programado de temperatura'),
+(14, 14, 13, 14, '2026-02-21', '2026-02-21', 'FINALIZADA', 'Oxigenacion optima registrada'),
+(15, 15, 14, 15, '2026-02-23', NULL, 'PENDIENTE', 'Limpieza de sector D'),
+(16, 16, 15, 16, '2026-02-26', '2026-02-26', 'FINALIZADA', 'Niveles de agua restablecidos'),
+(17, 17, 16, 17, '2026-03-02', NULL, 'EN PROGRESO', 'Rotando bandejas de cultivo'),
+(18, 18, 6, 18, '2026-01-30', '2026-01-30', 'FINALIZADA', 'Retiro de plantas muertas en torre 6'),
+(19, 19, 17, 19, '2026-03-04', '2026-03-04', 'FINALIZADA', 'Tablero electrico verificado'),
+(20, 20, 18, 20, '2026-03-06', NULL, 'ASIGNADA', 'Calibracion pendiente de sonda EC'),
+(21, 21, 19, 21, '2026-03-09', '2026-03-09', 'FINALIZADA', 'Suplemento de calcio aplicado'),
+(22, 22, 20, 22, '2026-03-11', NULL, 'PENDIENTE', 'Control de humedad ambiental'),
+(23, 23, 21, 23, '2026-03-13', '2026-03-13', 'FINALIZADA', 'Saneamiento completado en sector F'),
+(24, 24, 22, 24, '2026-03-16', '2026-03-16', 'FINALIZADA', 'Filtros de agua reemplazados'),
+(25, 25, 23, 25, '2026-03-19', NULL, 'ASIGNADA', 'Test de germinacion programado'),
+(26, 26, 24, 26, '2026-03-21', '2026-03-21', 'FINALIZADA', 'Podado estético realizado'),
+(27, 27, 25, 27, '2026-03-23', NULL, 'EN PROGRESO', 'Prueba de valvulas hidraulicas'),
+(28, 28, 26, 28, '2026-03-26', '2026-03-26', 'FINALIZADA', 'Medicion de CO2 dentro del rango'),
+(29, 29, 27, 29, '2026-03-29', '2026-03-29', 'FINALIZADA', 'Auditoria trimestral completada'),
+(30, 30, 28, 30, '2026-04-02', '2026-04-02', 'FINALIZADA', 'Capacitacion de personal operativo efectuada');
 SET IDENTITY_INSERT tareas OFF;
 GO
