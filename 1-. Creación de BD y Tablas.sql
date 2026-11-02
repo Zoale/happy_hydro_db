@@ -111,10 +111,10 @@ GO
 
 /*
 cultivos
-cultivo activo en una torre
-fecha_cosecha es null mientras no se haya cosechado
-estado: EN PROGRESO, COSECHADO, MUERTO o MANTENIMIENTO
- */
+Cultivo activo en una torre.
+fecha_cosecha es null mientras no se haya cosechado.
+estado: EN PROGRESO, COSECHADO o MUERTO.
+*/
 CREATE TABLE cultivos (
     id_cultivo INT IDENTITY(1,1) PRIMARY KEY,
     id_especie INT NOT NULL,
@@ -133,18 +133,20 @@ GO
 
 /*
 empleado
-identifica a un empleado que puede ejecutar tareas sobre los cultivos o las torres
+Identifica a un empleado que puede ejecutar tareas sobre los cultivos o las torres.
+estado indica si el empleado esta activo "boolean".
 */
 CREATE TABLE empleado (
     id_empleado INT IDENTITY(1,1) PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
-    apellido VARCHAR(50) NOT NULL
+    apellido VARCHAR(50) NOT NULL,
+    estado BIT NOT NULL
 );
 GO
 
 /*
 tipo_tareas
-identifica los tipos de tareas que se pueden realizar sobre los cultivos o las torres,
+Identifica los tipos de tareas que se pueden realizar sobre los cultivos o las torres,
 solo se puede crear un tipo de tarea con un nombre unico, la descripcion es opcional.
 */
 CREATE TABLE tipo_tareas (
@@ -157,16 +159,14 @@ GO
 
 /*
 tareas
-identifica una tarea concreta que se debe realizar sobre un cultivo o una torre, asignada a un empleado.
-es determinada por un tipo de tarea, y puede tener una fecha programada y una fecha ejecutada.
-Tiene un estado_tarea que puede ser PENDIENTE, PROGRAMADA, EN PROGRESO, FINALIZADA o CANCELADA.
-y siempre hace referencia a una torre y opcionalmente a un cultivo.
-Tiene un chequeo de integridad que asegura que si el estado_tarea es PROGRAMADA, EN PROGRESO o FINALIZADA, debe tener una fecha programada.
+Identifica una tarea concreta que se debe realizar sobre un cultivo, asignada a un empleado.
+Es determinada por un tipo de tarea, y puede tener una fecha programada y una fecha ejecutada.
+Tiene un estado_tarea que puede ser PENDIENTE, ASIGNADA, EN PROGRESO, FINALIZADA o CANCELADA.
+id_cultivo es opcional. Chequeo de integridad: si el estado_tarea es ASIGNADA, EN PROGRESO o FINALIZADA, debe tener una fecha programada.
 */
 CREATE TABLE tareas (
     id_tarea INT IDENTITY(1,1) PRIMARY KEY,
     id_tipo_tarea INT NOT NULL,
-    id_torre INT NOT NULL,
     id_cultivo INT NULL,
     id_empleado INT NOT NULL,
     fecha_programada DATE NULL,
@@ -174,14 +174,13 @@ CREATE TABLE tareas (
     estado_tarea VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
     observaciones VARCHAR(255) NULL,
     CONSTRAINT FK_tarea_tipo FOREIGN KEY (id_tipo_tarea) REFERENCES tipo_tareas(id_tipo_tarea),
-    CONSTRAINT FK_tarea_torre FOREIGN KEY (id_torre) REFERENCES sistema_torre(id_torre),
     CONSTRAINT FK_tarea_cultivo FOREIGN KEY (id_cultivo) REFERENCES cultivos(id_cultivo),
     CONSTRAINT FK_tarea_empleado FOREIGN KEY (id_empleado) REFERENCES empleado(id_empleado),
     CONSTRAINT CHK_estado_tarea CHECK (estado_tarea IN ('PENDIENTE', 'ASIGNADA', 'EN PROGRESO', 'FINALIZADA', 'CANCELADA')),
     CONSTRAINT CHK_fecha_prog CHECK (
-    estado_tarea NOT IN ('ASIGNADA', 'EN PROGRESO', 'FINALIZADA')
-    OR fecha_programada IS NOT NULL
-),
+        estado_tarea NOT IN ('ASIGNADA', 'EN PROGRESO', 'FINALIZADA')
+        OR fecha_programada IS NOT NULL
+    ),
     CONSTRAINT CHK_fecha_ejec CHECK (
         estado_tarea <> 'FINALIZADA'
         OR fecha_ejecutada IS NOT NULL
