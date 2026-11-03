@@ -111,3 +111,24 @@ GO
 SELECT c.id_cultivo, c.estado, c.fecha_inicio,
        dbo.fn_FechaCosechaEstimada(c.id_cultivo) AS cosecha_estimada
 FROM cultivos c;
+
+/*
+fn_UltimaMedicion
+Objetivo: Conocer la medicion mas reciente de una torre, para controlar el agua.
+Parametros: @id_torre (INT), la torre donde buscar.
+Tipo de retorno: TABLE, una fila con el sensor, la fecha y hora, el ph, la ec y la temperatura del agua.
+Logica: Junta mediciones con los sensores de la torre, las ordena por las nuevas y se queda con la primera.
+Si la torre no tiene mediciones devuelve una tabla vacia.
+Ejemplo de utilizacion: select * from dbo.fn_UltimaMedicion(1);
+*/
+create function fn_UltimaMedicion (@id_torre int)
+returns table
+as
+return (
+    select top 1 m.id_sensor, m.fecha_hora, m.ph, m.ec, m.temp_agua
+    from medicion m
+    join sensor s on m.id_sensor = s.id_sensor
+    where s.id_torre = @id_torre
+    order by m.fecha_hora desc
+);
+GO
