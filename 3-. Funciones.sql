@@ -111,3 +111,68 @@ GO
 SELECT c.id_cultivo, c.estado, c.fecha_inicio,
        dbo.fn_FechaCosechaEstimada(c.id_cultivo) AS cosecha_estimada
 FROM cultivos c;
+
+/*
+fn_UltimaMedicion
+Objetivo: Conocer la medicion mas reciente de una torre, para controlar el agua.
+Parametros: @id_torre (INT), la torre donde buscar.
+Tipo de retorno: TABLE, una fila con el sensor, la fecha y hora, el ph, la ec y la temperatura del agua.
+Logica: Junta mediciones con los sensores de la torre, las ordena por las nuevas y se queda con la primera.
+Si la torre no tiene mediciones devuelve una tabla vacia.
+Ejemplo de utilizacion: select * from dbo.fn_UltimaMedicion(1);
+*/
+create function fn_UltimaMedicion (@id_torre int)
+returns table
+as
+return (
+    select top 1 m.id_sensor, m.fecha_hora, m.ph, m.ec, m.temp_agua
+    from medicion m
+    join sensor s on m.id_sensor = s.id_sensor
+    where s.id_torre = @id_torre
+    order by m.fecha_hora desc
+);
+GO
+
+/*
+fn_PromedioMediciones
+Objetivo: Conocer los valores promedio del agua de una torre en un periodo.
+Parametros: @id_torre (INT), la torre donde buscar.
+@desde (DATE) y @hasta (DATE), el periodo a consultar, ambos dias incluidos.
+Tipo de retorno: TABLE, una fila con la cantidad de mediciones y el promedio de ph, ec y temperatura del agua.
+Logica: Junta mediciones con los sensores de la torre y promedia las que estan dentro del periodo.
+Se compara contra el dia siguiente a @hasta para incluir las mediciones de ese dia.
+Si no hay mediciones en el periodo devuelve cantidad 0 y los promedios en null.
+Ejemplo de utilizacion: select * from dbo.fn_PromedioMediciones(2, '2026-01-01', '2026-01-15');
+*/
+create function fn_PromedioMediciones (@id_torre int, @desde date, @hasta date)
+returns table
+as
+return (
+    select count(*) as cantidad_mediciones, avg(m.ph) as ph_promedio, avg(m.ec) as ec_promedio, avg(m.temp_agua) as temp_promedio
+    from medicion m
+    join sensor s on m.id_sensor = s.id_sensor
+    where s.id_torre = @id_torre and m.fecha_hora >= @desde and m.fecha_hora < dateadd(day, 1, @hasta)
+);
+GO
+
+/*
+fn_TareasEmpleado
+Objetivo: Ver todas las tareas de un empleado, para controlar su carga laboral y cosas pendientes.
+Parametros: @id_empleado (INT), el empleado a consultar.
+Tipo de retorno: TABLE, una fila por tarea con tipo, cultivo, torre, fechas, estado y observaciones.
+Logica: Busca las tareas del empleado y les agrega el tipo de tarea y la torre.
+Se usa left join con cultivos porque id_cultivo es opcional, asi no se pierden las tareas sin cultivo.
+Si el empleado no tiene tareas devuelve una tabla vacia.
+Ejemplo de utilizacion: select * from dbo.fn_TareasEmpleado(1) order by fecha_programada;
+*/
+create function fn_TareasEmpleado (@id_empleado int)
+returns table
+as
+return (
+    select t.id_tarea, x.nombre as tarea, t.id_cultivo, c.id_torre, t.fecha_programada, t.fecha_ejecutada, t.estado_tarea, t.observaciones
+    from tareas t
+    join tipo_tareas x on t.id_tipo_tarea = x.id_tipo_tarea
+    left join cultivos c on t.id_cultivo = c.id_cultivo
+    where t.id_empleado = @id_empleado
+);
+GO

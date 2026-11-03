@@ -112,6 +112,109 @@ END
 GO
 
 /*
+tr_medicion_valores_validos
+Objetivo: Proteger los datos aunque falle el sensor.
+Se ejecuta al insertar una medicion.
+Comprueba que los valores sean fisicamente posibles:
+    - pH entre 0 y 14, EC no negativa y temperatura del agua entre 0 y 50.
+    - Si algun valor esta fuera de rango, cancela la operacion.
+Los valores null se aceptan porque el sensor puede no medir alguno.
+*/
+CREATE TRIGGER tr_medicion_valores_validos
+ON medicion
+AFTER INSERT
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM inserted
+        WHERE ph < 0 OR ph > 14
+           OR ec < 0
+           OR temp_agua < 0 OR temp_agua > 50
+    )
+    BEGIN
+        THROW 50001, 'La medicion tiene valores fisicamente imposibles.', 1;
+    END
+END;
+GO
+
+/*
+tr_medicion_sensor_activo
+Objetivo: No guardar lecturas de sensores que ya no estan en funcionamiento.
+Se ejecuta al insertar una medicion.
+Comprueba que el sensor que envia la medicion este activo.
+Si el sensor fue dado de baja (activo = 0), cancela la operacion.
+*/
+CREATE TRIGGER tr_medicion_sensor_activo
+ON medicion
+AFTER INSERT
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM inserted AS i
+        INNER JOIN sensor AS s
+            ON i.id_sensor = s.id_sensor
+        WHERE s.activo = 0
+    )
+    BEGIN
+        THROW 50002, 'La medicion pertenece a un sensor inactivo.', 1;
+    END
+END;
+GO
+
+/*
+tr_tareas_empleado_activo
+Objetivo: No asignar tareas a empleados que ya no trabajan.
+Se ejecuta al insertar una tarea o al cambiar empleado.
+Comprueba que el empleado asignado este activo.
+Si el empleado esta inactivo (estado = 0), cancela la operacion.
+Solo revisa cuando se carga o cambia el empleado.
+*/
+CREATE TRIGGER tr_tareas_empleado_activo
+ON tareas
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF UPDATE(id_empleado) AND EXISTS (
+        SELECT 1
+        FROM inserted AS i
+        INNER JOIN empleado AS e
+            ON i.id_empleado = e.id_empleado
+        WHERE e.estado = 0
+    )
+    BEGIN
+        THROW 50003, 'No se puede asignar la tarea a un empleado inactivo.', 1;
+    END
+END;
+GO
+
+/*
+tr_empleado_desactivar
+Objetivo: Que ningun empleado quede dado de baja con tareas abiertas,
+Se ejecuta al actualizar un empleado.
+Si el empleado pasa de activo a inactivo (estado de 1 a 0) y tiene tareas, cancela la operacion.
+Usa deleted para saber el estado anterior e inserted para el nuevo.
+*/
+CREATE TRIGGER tr_empleado_desactivar
+ON empleado
+AFTER UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM inserted AS i
+        INNER JOIN deleted AS d
+            ON i.id_empleado = d.id_empleado
+        INNER JOIN tareas AS t
+            ON t.id_empleado = i.id_empleado
+        WHERE d.estado = 1
+          AND i.estado = 0
+          AND t.estado_tarea IN ('PENDIENTE', 'ASIGNADA', 'EN PROGRESO')
+    )
+    BEGIN
+        THROW 50004, 'El empleado tiene tareas abiertas, reasignelas antes de darlo de baja.', 1;
+    END
  * Trigger: tr_cultivos_capacidad
  *
  * Limita no agregas mas plantas de la capacidad que tiene una torre
@@ -138,6 +241,31 @@ END;
 GO
 
 /*
+tr_sensor_unico_activo
+Objetivo: Que cada torre tenga un solo sensor activo,
+Se ejecuta al insertar o actualizar un sensor.
+Comprueba que las torres afectadas no queden con mas de un sensor activo.
+Si una torre queda con dos o mas sensores activos, cancela la operacion.
+Para instalar uno nuevo primero hay que dar de baja el anterior.
+*/
+CREATE TRIGGER tr_sensor_unico_activo
+ON sensor
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM sensor AS s
+        WHERE s.activo = 1
+          AND s.id_torre IN (SELECT id_torre FROM inserted)
+        GROUP BY s.id_torre
+        HAVING COUNT(*) > 1
+    )
+    BEGIN
+        THROW 50005, 'La torre ya tiene un sensor activo, desactivelo antes de agregar otro.', 1;
+    END
+END;
+GO
  * Trigger: tr_cultivos_cancelar_tareas
  *
  * Cancela tareas cuando un cultivo pasa a MUERTO o COSECHADO.
