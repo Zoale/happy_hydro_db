@@ -162,3 +162,29 @@ BEGIN
     END
 END;
 GO
+
+/*
+tr_tareas_empleado_activo
+Objetivo: No asignar tareas a empleados que ya no trabajan.
+Se ejecuta al insertar una tarea o al cambiar empleado.
+Comprueba que el empleado asignado este activo.
+Si el empleado esta inactivo (estado = 0), cancela la operacion.
+Solo revisa cuando se carga o cambia el empleado.
+*/
+CREATE TRIGGER tr_tareas_empleado_activo
+ON tareas
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF UPDATE(id_empleado) AND EXISTS (
+        SELECT 1
+        FROM inserted AS i
+        INNER JOIN empleado AS e
+            ON i.id_empleado = e.id_empleado
+        WHERE e.estado = 0
+    )
+    BEGIN
+        THROW 50003, 'No se puede asignar la tarea a un empleado inactivo.', 1;
+    END
+END;
+GO
