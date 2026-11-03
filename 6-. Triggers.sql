@@ -110,3 +110,30 @@ BEGIN
       AND i.fecha_ejecutada IS NULL;
 END
 GO
+
+/*
+tr_medicion_valores_validos
+Objetivo: Proteger los datos aunque falle el sensor.
+Se ejecuta al insertar una medicion.
+Comprueba que los valores sean fisicamente posibles:
+    - pH entre 0 y 14, EC no negativa y temperatura del agua entre 0 y 50.
+    - Si algun valor esta fuera de rango, cancela la operacion.
+Los valores null se aceptan porque el sensor puede no medir alguno.
+*/
+CREATE TRIGGER tr_medicion_valores_validos
+ON medicion
+AFTER INSERT
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM inserted
+        WHERE ph < 0 OR ph > 14
+           OR ec < 0
+           OR temp_agua < 0 OR temp_agua > 50
+    )
+    BEGIN
+        THROW 50001, 'La medicion tiene valores fisicamente imposibles.', 1;
+    END
+END;
+GO
