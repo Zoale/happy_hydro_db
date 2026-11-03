@@ -176,6 +176,32 @@ BEGIN
     INSERT INTO sensor (id_torre, modelo, activo)
     VALUES (@id_torre, @modelo, 1);
 
+
+
+
+/*
+ * SP_Sensor_Actualizar
+ *
+ * Modifica la torre, el modelo y el estado de un sensor.
+ */
+
+USE happy_hidro;
+GO  
+    
+CREATE PROCEDURE SP_Sensor_Actualizar
+    @id_sensor  INT,
+    @id_torre   INT,
+    @modelo     VARCHAR(50),
+    @activo     BIT
+AS
+BEGIN
+    UPDATE sensor
+    SET id_torre = @id_torre,
+        modelo   = @modelo,
+        activo   = @activo
+    WHERE id_sensor = @id_sensor;
+END;
+GO
     SET @id_sensor = SCOPE_IDENTITY();
 END;
 GO
