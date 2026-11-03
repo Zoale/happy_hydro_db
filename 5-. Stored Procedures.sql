@@ -205,3 +205,17 @@ GO
     SET @id_sensor = SCOPE_IDENTITY();
 END;
 GO
+
+-- Ver el sensor antes del cambio
+SELECT * FROM sensor WHERE id_sensor = 1;
+
+-- Cambiar la torre, el modelo y el estado del sensor 1
+EXEC dbo.SP_Sensor_Actualizar
+    @id_sensor = 1,
+    @id_torre  = 2,
+    @modelo    = 'pH-EC Multiparametro',
+    @activo    = 1;
+
+-- Ver el resultado
+SELECT * FROM sensor WHERE id_sensor = 1;
+GO
