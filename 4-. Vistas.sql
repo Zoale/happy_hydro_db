@@ -5,23 +5,28 @@ Muestra los las tareas asignadas a los empleados
 */
 
 CREATE OR ALTER VIEW v_tareas_pendientes AS
-SELECT t2.descripcion, st.id_torre,e.nombre
+SELECT t2.descripcion, e.nombre, st.id_torre, c.cantidad_plantas
 from tareas as t
 JOIN tipo_tareas as t2
 	ON t.id_tarea = t2.id_tipo_tarea
 JOIN empleado as e 
 	ON t.id_empleado = e.id_empleado
-join sistema_torre as st
-	on st.id_torre = t.id_torre
+join cultivos as c
+    on c.id_cultivo= t.id_cultivo
+join  sistema_torre as st
+ON st.id_torre=c.id_cultivo
+
 WHERE t.estado_tarea = 'ASIGNADA'
 GO
+
+--select * from v_tareas_pendientes;
 
 /*
 Vista 4:
  muestra las torres que tienen bajo nivel de agua y las de estado normal.
-*/
+ */
 
-CREATE VIEW vw_torres_bajo_agua AS
+CREATE VIEW vw_torres_bajo_agua_2 AS
 SELECT
     id_torre,
     ubicacion_lote,
@@ -34,6 +39,8 @@ SELECT
 FROM sistema_torre;
 GO
 
+
+ /*
 Vista 1:
 Muestra los cultivos que se encuentran en estado "EN PROGRESO"
 devuelve, id_torrre, estado , agua , especie que contiene , lote y rack
@@ -52,17 +59,24 @@ Vista 2:
 Muestra en una vista que señale las tareas en estado “ASIGNADA”, ordenadas por fecha más próxima, e incluya para cada tarea: id_torre,ubicacion_lote,ubicacion_rack y el nombre del empleado que fue asignado.
 */
 
-CREATE VIEW vw_tareas_asignadas AS
+CREATE VIEW vw_tareas_asignadas_2 AS
 SELECT
     t.id_tarea,
-    t.id_torre,
+    st.id_torre,
     st.ubicacion_lote,
     st.ubicacion_rack,
     e.nombre + ' ' + e.apellido AS nombre_empleado,
     t.fecha_programada,
-    t.observaciones
-FROM tareas t
-INNER JOIN sistema_torre st ON st.id_torre = t.id_torre
-INNER JOIN empleado e ON e.id_empleado = t.id_empleado
+    t.observaciones,
+    t.estado_tarea
+FROM cultivos AS c
+INNER JOIN sistema_torre AS st 
+    ON st.id_torre = c.id_torre
+INNER JOIN tareas AS t 
+    ON t.id_cultivo = c.id_cultivo  
+INNER JOIN empleado AS e 
+    ON e.id_empleado = t.id_empleado
 WHERE t.estado_tarea = 'ASIGNADA';
 GO
+
+--select * from vw_tareas_asignadas_2
