@@ -1,4 +1,3 @@
-
 USE happy_hidro;
 GO
 
@@ -11,7 +10,7 @@ GO
  *
  * Objetivo: facilitar el registro de nuevos cultivos.
  */
-CREATE PROCEDURE SP_RegistrarCultivo
+CREATE OR ALTER PROCEDURE SP_RegistrarCultivo
     @id_especie INT,
     @id_torre INT,
     @cantidad_plantas INT
@@ -45,7 +44,7 @@ GO
  *
  * Objetivo: automatizar la finalización de tareas.
  */
-CREATE PROCEDURE SP_FinalizarTarea
+CREATE OR ALTER PROCEDURE SP_FinalizarTarea
     @id_tarea INT
 AS
 BEGIN
@@ -53,7 +52,7 @@ BEGIN
     SET estado_tarea = 'FINALIZADA',
         fecha_ejecutada = GETDATE()
     WHERE id_tarea = @id_tarea
-      AND estado_tarea IN 'EN PROGRESO'
+      AND estado_tarea = 'EN PROGRESO'
       AND fecha_programada <= GETDATE();
 END;
 GO
@@ -65,35 +64,33 @@ GO
  *
  * Objetivo: automatizar la finalización de tareas.
  */
-
-CREATE PROCEDURE SP_CultivoMuerto
-@id_cultivo INT
+CREATE OR ALTER PROCEDURE SP_CultivoMuerto
+    @id_cultivo INT
 AS
-BEGIN 
+BEGIN
     UPDATE cultivos
-    SET estado  = 'MUERTO'
-    WHERE id_cultivo = @id_cultivo AND estado  = 'EN PROGRESO'
-    END;
-    GO
+    SET estado = 'MUERTO'
+    WHERE id_cultivo = @id_cultivo AND estado = 'EN PROGRESO';
+END;
+GO
 
 
 /*
- * Procedimiento: SP_CultivoMuerto
+ * Procedimiento: SP_CultivoCosechado
  *
  * Cambiar el estado de un cultivo "EN PROGRESO" a "COSECHADO" al finalizar el mismo
  * registrando fecha de cosecha
  * Objetivo: automatizar la finalización de tareas.
  */
-
-CREATE PROCEDURE SP_CultivoCosechado
-@id_cultivo INT
+CREATE OR ALTER PROCEDURE SP_CultivoCosechado
+    @id_cultivo INT
 AS
-BEGIN 
+BEGIN
     UPDATE cultivos
-    SET estado  = 'COSECHADO', fecha_cosecha = GETDATE();
-    WHERE id_cultivo = @id_cultivo AND estado  = 'EN PROGRESO'
-    END;
-    GO
+    SET estado = 'COSECHADO', fecha_cosecha = GETDATE()
+    WHERE id_cultivo = @id_cultivo AND estado = 'EN PROGRESO';
+END;
+GO
 
 /*
  * Procedimiento: SP_SensorReporte
@@ -102,14 +99,13 @@ BEGIN
  * reportada por la API del sensor
  *
  */
-
-CREATE PROCEDURE SP_SensorReporte
-@id_sensor INT
-@ph decimal(3,1)
-@ec decimal(3,1)
-@temp_agua decimal(4,2)
+CREATE OR ALTER PROCEDURE SP_SensorReporte
+    @id_sensor INT,
+    @ph decimal(3,1),
+    @ec decimal(3,1),
+    @temp_agua decimal(4,2)
 AS
-BEGIN 
+BEGIN
     INSERT INTO medicion(
         id_sensor,
         fecha_hora,
@@ -124,8 +120,8 @@ BEGIN
         @ec,
         @temp_agua
     );
-    END;
-    GO
+END;
+GO
 
 /*
  * Procedimiento: SP_altaEmpleados
@@ -133,14 +129,11 @@ BEGIN
  * Da de alta la nomina de empleados
  *
  */
-
-ALTER PROCEDURE SP_altaEmpleados
-@nombre varchar(15),
-@apellido varchar(15)
-
-
+CREATE OR ALTER PROCEDURE SP_altaEmpleados
+    @nombre varchar(15),
+    @apellido varchar(15)
 AS
-BEGIN 
+BEGIN
     INSERT INTO empleado(
         nombre,
         apellido
@@ -148,10 +141,9 @@ BEGIN
     VALUES (
        @nombre,
        @apellido
-
     );
-    END;
-    GO
+END;
+GO
 
 /*
  * SP_Sensor_Insertar
@@ -159,11 +151,7 @@ BEGIN
  * Registra un sensor nuevo en una torre existente. Valida que la torre exista
  * y devuelve el id del sensor creado. El sensor se registra como activo.
  */
-
-USE happy_hidro;
-GO
-
-CREATE PROCEDURE SP_Sensor_Insertar
+CREATE OR ALTER PROCEDURE SP_Sensor_Insertar
     @id_torre   INT,
     @modelo     VARCHAR(50) = NULL,
     @id_sensor  INT OUTPUT
@@ -176,19 +164,16 @@ BEGIN
     INSERT INTO sensor (id_torre, modelo, activo)
     VALUES (@id_torre, @modelo, 1);
 
-
-
+    SET @id_sensor = SCOPE_IDENTITY();
+END;
+GO
 
 /*
  * SP_Sensor_Actualizar
  *
  * Modifica la torre, el modelo y el estado de un sensor.
  */
-
-USE happy_hidro;
-GO  
-    
-CREATE PROCEDURE SP_Sensor_Actualizar
+CREATE OR ALTER PROCEDURE SP_Sensor_Actualizar
     @id_sensor  INT,
     @id_torre   INT,
     @modelo     VARCHAR(50),
@@ -200,9 +185,6 @@ BEGIN
         modelo   = @modelo,
         activo   = @activo
     WHERE id_sensor = @id_sensor;
-END;
-GO
-    SET @id_sensor = SCOPE_IDENTITY();
 END;
 GO
 
