@@ -188,3 +188,32 @@ BEGIN
     END
 END;
 GO
+
+/*
+tr_empleado_desactivar
+Objetivo: Que ningun empleado quede dado de baja con tareas abiertas,
+Se ejecuta al actualizar un empleado.
+Si el empleado pasa de activo a inactivo (estado de 1 a 0) y tiene tareas, cancela la operacion.
+Usa deleted para saber el estado anterior e inserted para el nuevo.
+*/
+CREATE TRIGGER tr_empleado_desactivar
+ON empleado
+AFTER UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM inserted AS i
+        INNER JOIN deleted AS d
+            ON i.id_empleado = d.id_empleado
+        INNER JOIN tareas AS t
+            ON t.id_empleado = i.id_empleado
+        WHERE d.estado = 1
+          AND i.estado = 0
+          AND t.estado_tarea IN ('PENDIENTE', 'ASIGNADA', 'EN PROGRESO')
+    )
+    BEGIN
+        THROW 50004, 'El empleado tiene tareas abiertas, reasignelas antes de darlo de baja.', 1;
+    END
+END;
+GO
