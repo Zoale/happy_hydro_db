@@ -24,7 +24,7 @@ GO
 Lo usamos en la view: vw_MedicionesEvaluadas*/
 SELECT * FROM vw_MedicionesEvaluadas
 WHERE estado_ph <> 'OK' OR estado_ec <> 'OK' OR estado_temp <> 'OK';
-
+GO
 
 -- Función #2 (fn_CapacidadDisponible):
 -- La función calcula cuántas plantas más caben en una torre. Hace la resta entre su capacidad máxima y las plantas que ya están ocupadas por cultivos activos.
@@ -73,7 +73,7 @@ SELECT id_cultivo, id_torre, fecha_inicio,
 FROM cultivos
 WHERE estado = 'EN PROGRESO'
 ORDER BY dias DESC;
-
+GO
 
 /*
  * Función: fn_FechaCosechaEstimada
@@ -111,7 +111,7 @@ GO
 SELECT c.id_cultivo, c.estado, c.fecha_inicio,
        dbo.fn_FechaCosechaEstimada(c.id_cultivo) AS cosecha_estimada
 FROM cultivos c;
-
+GO
 /*
 fn_UltimaMedicion
 Objetivo: Conocer la medicion mas reciente de una torre, para controlar el agua.
