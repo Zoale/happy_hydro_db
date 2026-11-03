@@ -154,3 +154,25 @@ return (
     where s.id_torre = @id_torre and m.fecha_hora >= @desde and m.fecha_hora < dateadd(day, 1, @hasta)
 );
 GO
+
+/*
+fn_TareasEmpleado
+Objetivo: Ver todas las tareas de un empleado, para controlar su carga laboral y cosas pendientes.
+Parametros: @id_empleado (INT), el empleado a consultar.
+Tipo de retorno: TABLE, una fila por tarea con tipo, cultivo, torre, fechas, estado y observaciones.
+Logica: Busca las tareas del empleado y les agrega el tipo de tarea y la torre.
+Se usa left join con cultivos porque id_cultivo es opcional, asi no se pierden las tareas sin cultivo.
+Si el empleado no tiene tareas devuelve una tabla vacia.
+Ejemplo de utilizacion: select * from dbo.fn_TareasEmpleado(1) order by fecha_programada;
+*/
+create function fn_TareasEmpleado (@id_empleado int)
+returns table
+as
+return (
+    select t.id_tarea, x.nombre as tarea, t.id_cultivo, c.id_torre, t.fecha_programada, t.fecha_ejecutada, t.estado_tarea, t.observaciones
+    from tareas t
+    join tipo_tareas x on t.id_tipo_tarea = x.id_tipo_tarea
+    left join cultivos c on t.id_cultivo = c.id_cultivo
+    where t.id_empleado = @id_empleado
+);
+GO
