@@ -152,3 +152,70 @@ BEGIN
     );
     END;
     GO
+
+/*
+ * SP_Sensor_Insertar
+ *
+ * Registra un sensor nuevo en una torre existente. Valida que la torre exista
+ * y devuelve el id del sensor creado. El sensor se registra como activo.
+ */
+
+USE happy_hidro;
+GO
+
+CREATE PROCEDURE SP_Sensor_Insertar
+    @id_torre   INT,
+    @modelo     VARCHAR(50) = NULL,
+    @id_sensor  INT OUTPUT
+AS
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM sistema_torre WHERE id_torre = @id_torre)
+        THROW 50001, 'La torre no existe.', 1;
+
+    -- Un sensor nuevo se registra como activo
+    INSERT INTO sensor (id_torre, modelo, activo)
+    VALUES (@id_torre, @modelo, 1);
+
+
+
+
+/*
+ * SP_Sensor_Actualizar
+ *
+ * Modifica la torre, el modelo y el estado de un sensor.
+ */
+
+USE happy_hidro;
+GO  
+    
+CREATE PROCEDURE SP_Sensor_Actualizar
+    @id_sensor  INT,
+    @id_torre   INT,
+    @modelo     VARCHAR(50),
+    @activo     BIT
+AS
+BEGIN
+    UPDATE sensor
+    SET id_torre = @id_torre,
+        modelo   = @modelo,
+        activo   = @activo
+    WHERE id_sensor = @id_sensor;
+END;
+GO
+    SET @id_sensor = SCOPE_IDENTITY();
+END;
+GO
+
+-- Ver el sensor antes del cambio
+SELECT * FROM sensor WHERE id_sensor = 1;
+
+-- Cambiar la torre, el modelo y el estado del sensor 1
+EXEC dbo.SP_Sensor_Actualizar
+    @id_sensor = 1,
+    @id_torre  = 2,
+    @modelo    = 'pH-EC Multiparametro',
+    @activo    = 1;
+
+-- Ver el resultado
+SELECT * FROM sensor WHERE id_sensor = 1;
+GO

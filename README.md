@@ -84,19 +84,6 @@ Los scripts están numerados según el orden en que deben ejecutarse: cada uno d
 
 ![DER](docs/DER.png)
 
-## ⚡ Triggers
-
-| Trigger                    | Tabla      | Evento         | Descripción                                                                            |
-| -------------------------- | ---------- | -------------- | -------------------------------------------------------------------------------------- |
-| `TR_ValidarCapacidadTorre` | `cultivos` | INSERT, UPDATE | Impide que la suma de plantas de los cultivos activos supere la capacidad de la torre. |
-| `TR_ValidarTorreTarea`     | `tareas`   | INSERT, UPDATE | Verifica que el cultivo asociado a la tarea pertenezca a la torre indicada.            |
-
-## 🔧 Stored Procedures
-
-| Procedimiento         | Parámetros                                  | Descripción                                                                   |
-| --------------------- | ------------------------------------------- | ----------------------------------------------------------------------------- |
-| `SP_RegistrarCultivo` | `@id_especie, @id_torre, @cantidad_plantas` | Registra un nuevo cultivo con la fecha actual y estado EN PROGRESO.           |
-| `SP_FinalizarTarea`   | `@id_tarea`                                 | Finaliza una tarea programada o en progreso y registra la fecha de ejecución. |
 
 ## 🚀 Instalación y ejecución
 
