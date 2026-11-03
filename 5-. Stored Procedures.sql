@@ -154,11 +154,10 @@ BEGIN
     GO
 
 /*
- *
  * SP_Sensor_Insertar
  *
- * Este procedimiento modifica un sensor existente. Recibe el id del sensor y los nuevos valores, valida que existan el sensor y la torre, y recién después hace el cambio.
- *
+ * Registra un sensor nuevo en una torre existente. Valida que la torre exista
+ * y devuelve el id del sensor creado. El sensor se registra como activo.
  */
 
 USE happy_hidro;
