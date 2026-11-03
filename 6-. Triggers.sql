@@ -217,3 +217,30 @@ BEGIN
     END
 END;
 GO
+
+/*
+tr_sensor_unico_activo
+Objetivo: Que cada torre tenga un solo sensor activo,
+Se ejecuta al insertar o actualizar un sensor.
+Comprueba que las torres afectadas no queden con mas de un sensor activo.
+Si una torre queda con dos o mas sensores activos, cancela la operacion.
+Para instalar uno nuevo primero hay que dar de baja el anterior.
+*/
+CREATE TRIGGER tr_sensor_unico_activo
+ON sensor
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM sensor AS s
+        WHERE s.activo = 1
+          AND s.id_torre IN (SELECT id_torre FROM inserted)
+        GROUP BY s.id_torre
+        HAVING COUNT(*) > 1
+    )
+    BEGIN
+        THROW 50005, 'La torre ya tiene un sensor activo, desactivelo antes de agregar otro.', 1;
+    END
+END;
+GO
