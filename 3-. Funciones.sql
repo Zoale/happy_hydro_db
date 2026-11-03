@@ -74,3 +74,40 @@ FROM cultivos
 WHERE estado = 'EN PROGRESO'
 ORDER BY dias DESC;
 
+
+/*
+ * Función: fn_FechaCosechaEstimada
+ * Devuelve la fecha estimada de cosecha de un cultivo:
+ * fecha de inicio + suma de las duraciones de todas las etapas de su especie.
+ */
+CREATE OR ALTER FUNCTION fn_FechaCosechaEstimada (@id_cultivo INT)
+RETURNS DATE
+AS
+BEGIN
+    DECLARE @id_especie INT, @fecha_inicio DATE, @estado VARCHAR(20), @fecha_real DATE, @total_dias INT;
+    SELECT @id_especie   = id_especie,
+           @fecha_inicio = fecha_inicio,
+           @estado       = estado,
+           @fecha_real   = fecha_cosecha
+    FROM cultivos
+    WHERE id_cultivo = @id_cultivo;
+
+    IF @id_especie IS NULL OR @estado = 'MUERTO'
+        RETURN NULL;
+
+    IF @estado = 'COSECHADO'
+        RETURN @fecha_real;
+
+    -- Total de días de todas las etapas de la especie
+    SELECT @total_dias = SUM(dias_duracion)
+    FROM especie_etapa
+    WHERE id_especie = @id_especie;
+
+    
+    RETURN DATEADD(DAY, @total_dias, @fecha_inicio);
+END;
+GO
+
+SELECT c.id_cultivo, c.estado, c.fecha_inicio,
+       dbo.fn_FechaCosechaEstimada(c.id_cultivo) AS cosecha_estimada
+FROM cultivos c;
