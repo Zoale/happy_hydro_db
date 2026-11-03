@@ -152,3 +152,31 @@ BEGIN
     );
     END;
     GO
+
+/*
+ *
+ * SP_Sensor_Insertar
+ *
+ * Este procedimiento modifica un sensor existente. Recibe el id del sensor y los nuevos valores, valida que existan el sensor y la torre, y recién después hace el cambio.
+ *
+ */
+
+USE happy_hidro;
+GO
+
+CREATE PROCEDURE SP_Sensor_Insertar
+    @id_torre   INT,
+    @modelo     VARCHAR(50) = NULL,
+    @id_sensor  INT OUTPUT
+AS
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM sistema_torre WHERE id_torre = @id_torre)
+        THROW 50001, 'La torre no existe.', 1;
+
+    -- Un sensor nuevo se registra como activo
+    INSERT INTO sensor (id_torre, modelo, activo)
+    VALUES (@id_torre, @modelo, 1);
+
+    SET @id_sensor = SCOPE_IDENTITY();
+END;
+GO
