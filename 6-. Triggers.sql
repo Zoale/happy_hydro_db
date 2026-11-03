@@ -137,3 +137,28 @@ BEGIN
     END
 END;
 GO
+
+/*
+tr_medicion_sensor_activo
+Objetivo: No guardar lecturas de sensores que ya no estan en funcionamiento.
+Se ejecuta al insertar una medicion.
+Comprueba que el sensor que envia la medicion este activo.
+Si el sensor fue dado de baja (activo = 0), cancela la operacion.
+*/
+CREATE TRIGGER tr_medicion_sensor_activo
+ON medicion
+AFTER INSERT
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM inserted AS i
+        INNER JOIN sensor AS s
+            ON i.id_sensor = s.id_sensor
+        WHERE s.activo = 0
+    )
+    BEGIN
+        THROW 50002, 'La medicion pertenece a un sensor inactivo.', 1;
+    END
+END;
+GO
