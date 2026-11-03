@@ -66,3 +66,22 @@ INNER JOIN sistema_torre st ON st.id_torre = t.id_torre
 INNER JOIN empleado e ON e.id_empleado = t.id_empleado
 WHERE t.estado_tarea = 'ASIGNADA';
 GO
+
+/*Vista 3:
+Revisa automáticamente cada medición de pH, EC y temperatura del agua y la clasifica según el rango óptimo de la especie que se está cultivando en esa torre haciendo uso de la función: fn_EvaluarValor. 
+Cada medición queda marcada como OK, BAJO, ALTO, SIN DATO o SIN RANGO,
+para que el personal vea de un vistazo si algo requiere atención.
+*/
+CREATE VIEW vw_MedicionesEvaluadas AS
+SELECT
+    m.id_medicion, s.id_torre, m.fecha_hora,
+    m.ph,fn_EvaluarValor(m.ph,ee.ph_min,ee.ph_max)   AS estado_ph,
+    m.ec,fn_EvaluarValor(m.ec,ee.ec_min,ee.ec_max)   AS estado_ec,
+    m.temp_agua,fn_EvaluarValor(m.temp_agua, ee.temp_min, ee.temp_max) AS estado_temp
+FROM medicion AS m
+JOIN sensor AS s       ON s.id_sensor = m.id_sensor
+JOIN cultivos AS c     ON c.id_torre = s.id_torre AND c.estado = 'EN PROGRESO'
+JOIN especie_etapa AS ee ON ee.id_especie = c.id_especie AND ee.id_etapa = 3;
+GO
+
+
