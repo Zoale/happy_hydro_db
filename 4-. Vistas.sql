@@ -87,9 +87,9 @@ para que el personal vea de un vistazo si algo requiere atención.
 CREATE VIEW vw_MedicionesEvaluadas AS
 SELECT
     m.id_medicion, s.id_torre, m.fecha_hora,
-    m.ph,fn_EvaluarValor(m.ph,ee.ph_min,ee.ph_max) AS estado_ph,
-    m.ec,fn_EvaluarValor(m.ec,ee.ec_min,ee.ec_max) AS estado_ec,
-    m.temp_agua,fn_EvaluarValor(m.temp_agua, ee.temp_min, ee.temp_max) AS estado_temp
+    m.ph,      dbo.fn_EvaluarValor(m.ph,ee.ph_min,ee.ph_max) AS estado_ph,
+    m.ec,      dbo.fn_EvaluarValor(m.ec,ee.ec_min,ee.ec_max) AS estado_ec,
+    m.temp_agua, dbo.fn_EvaluarValor(m.temp_agua, ee.temp_min, ee.temp_max) AS estado_temp
 FROM medicion AS m
 JOIN sensor AS s ON s.id_sensor = m.id_sensor
 JOIN cultivos AS c ON c.id_torre = s.id_torre AND c.estado = 'EN PROGRESO'
