@@ -132,3 +132,25 @@ return (
     order by m.fecha_hora desc
 );
 GO
+
+/*
+fn_PromedioMediciones
+Objetivo: Conocer los valores promedio del agua de una torre en un periodo.
+Parametros: @id_torre (INT), la torre donde buscar.
+@desde (DATE) y @hasta (DATE), el periodo a consultar, ambos dias incluidos.
+Tipo de retorno: TABLE, una fila con la cantidad de mediciones y el promedio de ph, ec y temperatura del agua.
+Logica: Junta mediciones con los sensores de la torre y promedia las que estan dentro del periodo.
+Se compara contra el dia siguiente a @hasta para incluir las mediciones de ese dia.
+Si no hay mediciones en el periodo devuelve cantidad 0 y los promedios en null.
+Ejemplo de utilizacion: select * from dbo.fn_PromedioMediciones(2, '2026-01-01', '2026-01-15');
+*/
+create function fn_PromedioMediciones (@id_torre int, @desde date, @hasta date)
+returns table
+as
+return (
+    select count(*) as cantidad_mediciones, avg(m.ph) as ph_promedio, avg(m.ec) as ec_promedio, avg(m.temp_agua) as temp_promedio
+    from medicion m
+    join sensor s on m.id_sensor = s.id_sensor
+    where s.id_torre = @id_torre and m.fecha_hora >= @desde and m.fecha_hora < dateadd(day, 1, @hasta)
+);
+GO
