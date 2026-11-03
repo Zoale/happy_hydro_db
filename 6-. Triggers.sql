@@ -110,3 +110,52 @@ BEGIN
       AND i.fecha_ejecutada IS NULL;
 END
 GO
+
+/*
+ * Trigger: tr_cultivos_capacidad
+ *
+ * Limita no agregas mas plantas de la capacidad que tiene una torre
+ */
+
+CREATE OR ALTER TRIGGER tr_cultivos_capacidad
+ON cultivos
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (
+        SELECT 1
+        FROM sistema_torre t
+        JOIN cultivos c ON c.id_torre = t.id_torre
+        WHERE c.estado = 'EN PROGRESO'
+          AND t.id_torre IN (SELECT id_torre FROM inserted)   -- solo las torres tocadas
+        GROUP BY t.id_torre, t.capacidad_planta
+        HAVING SUM(c.cantidad_plantas) > t.capacidad_planta
+    )
+        THROW 50020, 'La torre supera su capacidad de plantas.', 1;
+END;
+GO
+
+/*
+ * Trigger: tr_cultivos_cancelar_tareas
+ *
+ * Cancela tareas cuando un cultivo pasa a MUERTO o COSECHADO.
+ */
+
+ CREATE OR ALTER TRIGGER tr_cultivos_cancelar_tareas
+ ON cultivos
+ AFTER UPDATE
+ AS
+ BEGIN
+    SET NOCOUNT ON;
+    UPDATE t
+    SET t.estado_tarea = 'CANCELADA' 
+    FROM tareas t
+    JOIN inserted i ON t.id_cultivo = i.id_cultivo
+    JOIN deleted d ON d.id_cultivo = i.id_cultivo
+    WHERE (i.estado IN ('MUERTO','COSECHADO')) AND 
+          (d.estado = 'EN PROGRESO') AND 
+          (t.estado_tarea IN ('PENDIENTE','ASIGNADA','EN PROGRESO'));
+    END;
+    GO
