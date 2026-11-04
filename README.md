@@ -9,10 +9,6 @@ Trabajo práctico de base de datos que modela la gestión de un sistema de culti
 - [Tecnologías](#-tecnologías)
 - [Estructura del repositorio](#-estructura-del-repositorio)
 - [Modelo de datos](#-modelo-de-datos)
-- [Triggers](#-triggers)
-- [Stored Procedures](#-stored-procedures)
-- [Instalación y ejecución](#-instalación-y-ejecución)
-- [Ejemplos de uso](#-ejemplos-de-uso)
 - [Integrantes](#-integrantes)
 
 ## Contexto
