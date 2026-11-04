@@ -1,8 +1,7 @@
-# 🌱 Sistema de Gestión Hidropónica — Trabajo Práctico SQL - GRUPO 7
+# 🌱 Sistema de Gestión Hidropónica — TP SQL - GRUPO 7
 
 Trabajo práctico de base de datos que modela la gestión de un sistema de cultivo hidropónico. El proyecto está desarrollado íntegramente en **SQL**, incluyendo el diseño de entidades, triggers, stored proceduresy vistas.
 
-> ⚠️ Proyecto en desarrollo: la estructura y el contenido de este README se irán actualizando a medida que avance el trabajo.
 
 ## 📋 Índice
 
@@ -22,19 +21,14 @@ La hidroponía es una técnica de cultivo sin suelo en la que las plantas crecen
 
 ## Problemática
 
-A partir del relevamiento realizado con una persona que gestiona un cultivo, se identificó que actualmente los invernaderos son administrados mediante tareas manuales. Las personas a cargo deben controlar de forma periódica parámetros como el nivel de agua, el tiempo de cosecha y los mantenimientos de cada sistema NFT. Toda la información del cultivo se asienta en un cuaderno. Este método resulta rutinario y poco eficiente: depende de la constancia de quien registra, dificulta detectar a tiempo valores fuera de lo normal, no permite consultar el historial de forma ágil y el cultivo queda expuesto al error humano.
+La hidroponía es una técnica de cultivo sin suelo en la que las plantas crecen con sus raíces en una solución de agua y nutrientes, dentro de un ambiente controlado como un invernadero. Para que el cultivo prospere, es necesario mantener estables una serie de parámetros ambientales y llevar un seguimiento detallado de cada etapa de la planta.
+A partir del relevamiento realizado con una persona que gestiona un cultivo, se identificó que actualmente los invernaderos son administrados mediante tareas manuales. Las personas a cargo deben controlar de forma periódica parámetros como la temperatura, la humedad, los nutrientes, la iluminación y la ventilación. A esto se suma el registro de la fase en la que se encuentra cada planta (vegetación o floración), las fechas de plantación y de cosecha, y el tiempo de curado. Además, como las torres de hidroponias llevan agua, y el agua se evapora, el empleado responsable de controlar el agua debe verificarlo a ojo, es decir, debe ir a cada torre e identificar si falta agua o no con lo que observa en la maceta.
+El encendido y apagado de las luces se controla mediante timers que deben configurarse manualmente, y toda la información del cultivo se asienta en un cuaderno. Este método resulta rutinario y poco eficiente: depende de la constancia de quien registra, dificulta detectar a tiempo valores fuera de lo normal y no permite consultar el historial de forma ágil.
 
-## Propuesta
 
-Este trabajo práctico propone el diseño de una base de datos para un sistema de gestión de invernadero que permita:
-Automatizar el control de parámetros mediante sensores que registren las mediciones de temperatura, humedad, nutrientes y nivel de agua.
-Generar alertas cuando algún parámetro se encuentre fuera del rango configurado.
-Reemplazar el registro en cuaderno por tablas que almacenen la información de cada planta y sistema: fase, fecha de plantación, fecha de cosecha y tiempo de curado.
-Gestionar a los empleados y las tareas que realizan, como poda, cosecha, corrección de pH y mantenimiento ante fallas de sensores o equipos.
-
-**Materia:** _[Ingeniería de Datos I]_
-**Institución:** _[UADE]_
-**Año / Cuatrimestre:** _[2026 – 2° cuatrimestre]_
+**Materia:** Ingeniería de Datos I
+**Institución:** UADE
+**Año / Cuatrimestre:** 2026 – 2° cuatrimestre
 
 ## 🛠 Tecnologías
 
@@ -59,9 +53,6 @@ Gestionar a los empleados y las tareas que realizan, como poda, cosecha, correcc
     └── DER.png                       # Diagrama entidad-relación
 ```
 
-Los scripts están numerados según el orden en que deben ejecutarse: cada uno depende de los objetos creados por los anteriores.
-
-> La estructura es tentativa y puede cambiar.
 
 ## 🗂 Modelo de datos
 
