@@ -37,15 +37,18 @@ where id_torre not in (select id_torre from cultivos where estado in ('EN PROGRE
 GO
 
 /*
-Subconsulta 4:
-Que se quiere obtener: Cuantos espacios libres y ocupados tiene cada torre, para organizar donde poner plantas nuevas.
-Funcion de la subconsulta: Por cada torre, suma la cantidad de plantas de sus cultivos activos (en progreso o en mantenimiento).
-Si la torre no tiene activos la suma da null, por eso se usa isnull asi muestra 0.
-Los espacios libres se obtienen restando ese resultado a la capacidad de la torre.
-Por que es adecuada: Cada torre tiene una cantidad distinta de plantas, por lo que no sirve un unico valor para todas, la subconsulta es correlacionada y se calcula una vez por cada torre usando su id.
-*/
-select t.id_torre, t.capacidad_planta as capacidad,
-isnull((select sum(c.cantidad_plantas) from cultivos c where c.estado in ('EN PROGRESO', 'MANTENIMIENTO') and t.id_torre = c.id_torre), 0) as espacios_ocupados,
-t.capacidad_planta - isnull((select sum(c.cantidad_plantas) from cultivos c where c.estado in ('EN PROGRESO', 'MANTENIMIENTO') and t.id_torre = c.id_torre), 0) as espacios_libres
-from sistema_torre t
-order by espacios_libres desc, t.id_torre;
+ * Consulta: q_torres_libres
+ *
+ * Torres sin ningún cultivo EN PROGRESO, disponibles para sembrar.
+ */
+SELECT t.id_torre,
+       t.ubicacion_lote,
+       t.ubicacion_rack,
+       t.capacidad_planta
+FROM sistema_torre t
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM cultivos c
+    WHERE c.id_torre = t.id_torre AND c.estado = 'EN PROGRESO'
+)
+ORDER BY t.ubicacion_lote, t.ubicacion_rack;
