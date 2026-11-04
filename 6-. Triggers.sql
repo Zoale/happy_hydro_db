@@ -13,44 +13,6 @@ DROP TRIGGER IF EXISTS TR_ValidarTorreTarea;
 DROP TRIGGER IF EXISTS tr_cultivos_cancelar;
 GO
 
-
-/*
- * Trigger: TR_ValidarCapacidadTorre
- *
- * Se ejecuta al insertar o actualizar un cultivo.
- * Comprueba que la cantidad total de plantas activas
- * no supere la capacidad máxima de la torre.
- * Si se supera el límite, cancela la operación.
- *
- * Objetivo: evitar que una torre exceda su capacidad.
- */
-CREATE OR ALTER TRIGGER TR_ValidarCapacidadTorre
-ON cultivos
-AFTER INSERT, UPDATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    IF EXISTS (
-        SELECT 1
-        FROM sistema_torre AS st
-        INNER JOIN inserted AS i
-            ON st.id_torre = i.id_torre
-        WHERE (
-            SELECT ISNULL(SUM(c.cantidad_plantas), 0)
-            FROM cultivos AS c
-            WHERE c.id_torre = st.id_torre
-              AND c.estado = 'EN PROGRESO'
-        ) > st.capacidad_planta
-    )
-    BEGIN
-        PRINT 'La torre supera su capacidad maxima.';
-        ROLLBACK TRANSACTION;
-    END;
-END;
-GO
-
-
 /*
  * Trigger: tr_cultivos_capacidad
  *
