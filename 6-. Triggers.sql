@@ -1,6 +1,19 @@
 USE happy_hidro;
 GO
 
+/* =====================================================================
+ * LIMPIEZA DE TRIGGERS VIEJOS
+ * =====================================================================
+ * - TR_ValidarTorreTarea: usaba tareas.id_torre, columna que ya no existe.
+ *   Ya no se puede crear y, si quedó en la base, rompe cualquier INSERT/UPDATE en tareas.
+ * - tr_cultivos_cancelar: versión anterior de tr_cultivos_cancelar_tareas
+ *   (mismo código con otro nombre). Si quedan los dos, la regla se ejecuta dos veces.
+ */
+DROP TRIGGER IF EXISTS TR_ValidarTorreTarea;
+DROP TRIGGER IF EXISTS tr_cultivos_cancelar;
+GO
+
+
 /*
  * Trigger: TR_ValidarCapacidadTorre
  *
@@ -11,11 +24,13 @@ GO
  *
  * Objetivo: evitar que una torre exceda su capacidad.
  */
-ALTER TRIGGER TR_ValidarCapacidadTorre
+CREATE OR ALTER TRIGGER TR_ValidarCapacidadTorre
 ON cultivos
 AFTER INSERT, UPDATE
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     IF EXISTS (
         SELECT 1
         FROM sistema_torre AS st
@@ -31,72 +46,103 @@ BEGIN
     BEGIN
         PRINT 'La torre supera su capacidad maxima.';
         ROLLBACK TRANSACTION;
-    END
-END;
-GO
-/*
- * Trigger: TR_ValidarTorreTarea
- *
- * Se ejecuta al insertar o actualizar una tarea.
- * Verifica que el cultivo asociado pertenezca
- * a la misma torre indicada en la tarea.
- * Si las torres no coinciden, cancela la operación.
- *
- * Objetivo: mantener la coherencia entre tareas,
- * cultivos y torres.
- */
-CREATE TRIGGER TR_ValidarTorreTarea
-ON tareas
-AFTER INSERT, UPDATE
-AS
-BEGIN
-    IF EXISTS (
-        SELECT 1
-        FROM inserted AS i
-        INNER JOIN cultivos AS c
-            ON i.id_cultivo = c.id_cultivo
-        WHERE i.id_torre <> c.id_torre
-    )
-    BEGIN
-        PRINT 'El cultivo no pertenece a la torre indicada.';
-        ROLLBACK TRANSACTION;
-    END
+    END;
 END;
 GO
 
+
 /*
-TRG_cultivos_set_fecha_cosecha
-La función de este trigger es que cuando un cultivo pasa a estado COSECHADO y fecha_cosecha todavia es null,
-se completa automaticamente con la fecha actual. Si existe una fecha de cosecha, no se pisa.
-*/
-CREATE TRIGGER TRG_cultivos_set_fecha_cosecha
+ * Trigger: tr_cultivos_capacidad
+ *
+ * Impide agregar más plantas de la capacidad que tiene una torre.
+ */
+CREATE OR ALTER TRIGGER tr_cultivos_capacidad
+ON cultivos
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (
+        SELECT 1
+        FROM sistema_torre t
+        JOIN cultivos c ON c.id_torre = t.id_torre
+        WHERE c.estado = 'EN PROGRESO'
+          AND t.id_torre IN (SELECT id_torre FROM inserted)   -- solo las torres tocadas
+        GROUP BY t.id_torre, t.capacidad_planta
+        HAVING SUM(c.cantidad_plantas) > t.capacidad_planta
+    )
+        THROW 50020, 'La torre supera su capacidad de plantas.', 1;
+END;
+GO
+
+
+/*
+ * TRG_cultivos_set_fecha_cosecha
+ *
+ * Cuando un cultivo pasa a estado COSECHADO y fecha_cosecha todavía es NULL,
+ * se completa automáticamente con la fecha actual.
+ * Si ya existe una fecha de cosecha, no se pisa.
+ */
+CREATE OR ALTER TRIGGER TRG_cultivos_set_fecha_cosecha
 ON cultivos
 AFTER UPDATE
 AS
 BEGIN
+    SET NOCOUNT ON;
 
     UPDATE c
     SET c.fecha_cosecha = CAST(GETDATE() AS DATE)
     FROM cultivos c
     INNER JOIN inserted i ON i.id_cultivo = c.id_cultivo
-    INNER JOIN deleted d ON d.id_cultivo = c.id_cultivo
+    INNER JOIN deleted d  ON d.id_cultivo = c.id_cultivo
     WHERE i.estado = 'COSECHADO'
       AND d.estado <> 'COSECHADO'
       AND i.fecha_cosecha IS NULL;
-END
+END;
 GO
 
+
 /*
-TRG_tareas_set_fecha_ejecutada
-La función de este Trigger es que cuando una tarea pasa a estado FINALIZADA y fecha_ejecutada todavia es null, se completa automaticamente. 
-Si fecha_programada es futura (caso raro, tarea programada para despues de hoy pero cerrada ahora), 
-se usa fecha_programada para no violar CHK_orden_fechas; en el caso normal se usa la fecha actual.
-*/
-CREATE TRIGGER TRG_tareas_set_fecha_ejecutada
+ * Trigger: tr_cultivos_cancelar_tareas
+ *
+ * Cancela las tareas abiertas cuando un cultivo pasa a MUERTO o COSECHADO.
+ */
+CREATE OR ALTER TRIGGER tr_cultivos_cancelar_tareas
+ON cultivos
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE t
+    SET t.estado_tarea = 'CANCELADA'
+    FROM tareas t
+    JOIN inserted i ON t.id_cultivo = i.id_cultivo
+    JOIN deleted d  ON d.id_cultivo = i.id_cultivo
+    WHERE i.estado IN ('MUERTO', 'COSECHADO')
+      AND d.estado = 'EN PROGRESO'
+      AND t.estado_tarea IN ('PENDIENTE', 'ASIGNADA', 'EN PROGRESO');
+END;
+GO
+
+
+/*
+ * TRG_tareas_set_fecha_ejecutada
+ *
+ * Cuando una tarea pasa a estado FINALIZADA y fecha_ejecutada todavía es NULL,
+ * se completa automáticamente.
+ * Si fecha_programada es futura (caso raro: tarea programada para después de hoy
+ * pero cerrada ahora), se usa fecha_programada para no violar CHK_orden_fechas;
+ * en el caso normal se usa la fecha actual.
+ */
+CREATE OR ALTER TRIGGER TRG_tareas_set_fecha_ejecutada
 ON tareas
 AFTER UPDATE
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     UPDATE t
     SET t.fecha_ejecutada = CASE
             WHEN t.fecha_programada > CAST(GETDATE() AS DATE) THEN t.fecha_programada
@@ -104,78 +150,29 @@ BEGIN
         END
     FROM tareas t
     INNER JOIN inserted i ON i.id_tarea = t.id_tarea
-    INNER JOIN deleted d ON d.id_tarea = t.id_tarea
+    INNER JOIN deleted d  ON d.id_tarea = t.id_tarea
     WHERE i.estado_tarea = 'FINALIZADA'
       AND d.estado_tarea <> 'FINALIZADA'
       AND i.fecha_ejecutada IS NULL;
-END
-GO
-
-/*
-tr_medicion_valores_validos
-Objetivo: Proteger los datos aunque falle el sensor.
-Se ejecuta al insertar una medicion.
-Comprueba que los valores sean fisicamente posibles:
-    - pH entre 0 y 14, EC no negativa y temperatura del agua entre 0 y 50.
-    - Si algun valor esta fuera de rango, cancela la operacion.
-Los valores null se aceptan porque el sensor puede no medir alguno.
-*/
-CREATE TRIGGER tr_medicion_valores_validos
-ON medicion
-AFTER INSERT
-AS
-BEGIN
-    IF EXISTS (
-        SELECT 1
-        FROM inserted
-        WHERE ph < 0 OR ph > 14
-           OR ec < 0
-           OR temp_agua < 0 OR temp_agua > 50
-    )
-    BEGIN
-        THROW 50001, 'La medicion tiene valores fisicamente imposibles.', 1;
-    END
 END;
 GO
 
-/*
-tr_medicion_sensor_activo
-Objetivo: No guardar lecturas de sensores que ya no estan en funcionamiento.
-Se ejecuta al insertar una medicion.
-Comprueba que el sensor que envia la medicion este activo.
-Si el sensor fue dado de baja (activo = 0), cancela la operacion.
-*/
-CREATE TRIGGER tr_medicion_sensor_activo
-ON medicion
-AFTER INSERT
-AS
-BEGIN
-    IF EXISTS (
-        SELECT 1
-        FROM inserted AS i
-        INNER JOIN sensor AS s
-            ON i.id_sensor = s.id_sensor
-        WHERE s.activo = 0
-    )
-    BEGIN
-        THROW 50002, 'La medicion pertenece a un sensor inactivo.', 1;
-    END
-END;
-GO
 
 /*
-tr_tareas_empleado_activo
-Objetivo: No asignar tareas a empleados que ya no trabajan.
-Se ejecuta al insertar una tarea o al cambiar empleado.
-Comprueba que el empleado asignado este activo.
-Si el empleado esta inactivo (estado = 0), cancela la operacion.
-Solo revisa cuando se carga o cambia el empleado.
-*/
-CREATE TRIGGER tr_tareas_empleado_activo
+ * tr_tareas_empleado_activo
+ *
+ * Objetivo: no asignar tareas a empleados que ya no trabajan.
+ * Se ejecuta al insertar una tarea o al cambiar su empleado.
+ * Si el empleado está inactivo (estado = 0), cancela la operación.
+ * Solo revisa cuando se carga o cambia el empleado.
+ */
+CREATE OR ALTER TRIGGER tr_tareas_empleado_activo
 ON tareas
 AFTER INSERT, UPDATE
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     IF UPDATE(id_empleado) AND EXISTS (
         SELECT 1
         FROM inserted AS i
@@ -185,22 +182,27 @@ BEGIN
     )
     BEGIN
         THROW 50003, 'No se puede asignar la tarea a un empleado inactivo.', 1;
-    END
+    END;
 END;
 GO
 
+
 /*
-tr_empleado_desactivar
-Objetivo: Que ningun empleado quede dado de baja con tareas abiertas,
-Se ejecuta al actualizar un empleado.
-Si el empleado pasa de activo a inactivo (estado de 1 a 0) y tiene tareas, cancela la operacion.
-Usa deleted para saber el estado anterior e inserted para el nuevo.
-*/
-CREATE TRIGGER tr_empleado_desactivar
+ * tr_empleado_desactivar
+ *
+ * Objetivo: que ningún empleado quede dado de baja con tareas abiertas.
+ * Se ejecuta al actualizar un empleado.
+ * Si el empleado pasa de activo a inactivo (estado de 1 a 0) y tiene tareas
+ * abiertas, cancela la operación.
+ * Usa deleted para saber el estado anterior e inserted para el nuevo.
+ */
+CREATE OR ALTER TRIGGER tr_empleado_desactivar
 ON empleado
 AFTER UPDATE
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     IF EXISTS (
         SELECT 1
         FROM inserted AS i
@@ -214,45 +216,85 @@ BEGIN
     )
     BEGIN
         THROW 50004, 'El empleado tiene tareas abiertas, reasignelas antes de darlo de baja.', 1;
-    END
- * Trigger: tr_cultivos_capacidad
- *
- * Limita no agregas mas plantas de la capacidad que tiene una torre
- */
+    END;
+END;
+GO
 
-CREATE OR ALTER TRIGGER tr_cultivos_capacidad
-ON cultivos
-AFTER INSERT, UPDATE
+
+/*
+ * tr_medicion_valores_validos
+ *
+ * Objetivo: proteger los datos aunque falle el sensor.
+ * Se ejecuta al insertar una medición.
+ * Comprueba que los valores sean físicamente posibles:
+ *   - pH entre 0 y 14, EC no negativa y temperatura del agua entre 0 y 50.
+ *   - Si algún valor está fuera de rango, cancela la operación.
+ * Los valores NULL se aceptan porque el sensor puede no medir alguno.
+ */
+CREATE OR ALTER TRIGGER tr_medicion_valores_validos
+ON medicion
+AFTER INSERT
 AS
 BEGIN
     SET NOCOUNT ON;
 
     IF EXISTS (
         SELECT 1
-        FROM sistema_torre t
-        JOIN cultivos c ON c.id_torre = t.id_torre
-        WHERE c.estado = 'EN PROGRESO'
-          AND t.id_torre IN (SELECT id_torre FROM inserted)   -- solo las torres tocadas
-        GROUP BY t.id_torre, t.capacidad_planta
-        HAVING SUM(c.cantidad_plantas) > t.capacidad_planta
+        FROM inserted
+        WHERE ph < 0 OR ph > 14
+           OR ec < 0
+           OR temp_agua < 0 OR temp_agua > 50
     )
-        THROW 50020, 'La torre supera su capacidad de plantas.', 1;
+    BEGIN
+        THROW 50001, 'La medicion tiene valores fisicamente imposibles.', 1;
+    END;
 END;
 GO
 
+
 /*
-tr_sensor_unico_activo
-Objetivo: Que cada torre tenga un solo sensor activo,
-Se ejecuta al insertar o actualizar un sensor.
-Comprueba que las torres afectadas no queden con mas de un sensor activo.
-Si una torre queda con dos o mas sensores activos, cancela la operacion.
-Para instalar uno nuevo primero hay que dar de baja el anterior.
-*/
-CREATE TRIGGER tr_sensor_unico_activo
+ * tr_medicion_sensor_activo
+ *
+ * Objetivo: no guardar lecturas de sensores que ya no están en funcionamiento.
+ * Se ejecuta al insertar una medición.
+ * Si el sensor fue dado de baja (activo = 0), cancela la operación.
+ */
+CREATE OR ALTER TRIGGER tr_medicion_sensor_activo
+ON medicion
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (
+        SELECT 1
+        FROM inserted AS i
+        INNER JOIN sensor AS s
+            ON i.id_sensor = s.id_sensor
+        WHERE s.activo = 0
+    )
+    BEGIN
+        THROW 50002, 'La medicion pertenece a un sensor inactivo.', 1;
+    END;
+END;
+GO
+
+
+/*
+ * tr_sensor_unico_activo
+ *
+ * Objetivo: que cada torre tenga un solo sensor activo.
+ * Se ejecuta al insertar o actualizar un sensor.
+ * Si una torre queda con dos o más sensores activos, cancela la operación.
+ * Para instalar uno nuevo, primero hay que dar de baja el anterior.
+ */
+CREATE OR ALTER TRIGGER tr_sensor_unico_activo
 ON sensor
 AFTER INSERT, UPDATE
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     IF EXISTS (
         SELECT 1
         FROM sensor AS s
@@ -263,76 +305,6 @@ BEGIN
     )
     BEGIN
         THROW 50005, 'La torre ya tiene un sensor activo, desactivelo antes de agregar otro.', 1;
-    END
+    END;
 END;
 GO
- * Trigger: tr_cultivos_cancelar_tareas
- *
- * Cancela tareas cuando un cultivo pasa a MUERTO o COSECHADO.
- */
-
- CREATE OR ALTER TRIGGER tr_cultivos_cancelar_tareas
- ON cultivos
- AFTER UPDATE
- AS
- BEGIN
-    SET NOCOUNT ON;
-    UPDATE t
-    SET t.estado_tarea = 'CANCELADA' 
-    FROM tareas t
-    JOIN inserted i ON t.id_cultivo = i.id_cultivo
-    JOIN deleted d ON d.id_cultivo = i.id_cultivo
-    WHERE (i.estado IN ('MUERTO','COSECHADO')) AND 
-          (d.estado = 'EN PROGRESO') AND 
-          (t.estado_tarea IN ('PENDIENTE','ASIGNADA','EN PROGRESO'));
-    END;
-    GO
-
-/*
- * Trigger: tr_cultivos_capacidad
- *
- * Limita no agregas mas plantas de la capacidad que tiene una torre
- */
-
-CREATE OR ALTER TRIGGER tr_cultivos_capacidad
-ON cultivos
-AFTER INSERT, UPDATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    IF EXISTS (
-        SELECT 1
-        FROM sistema_torre t
-        JOIN cultivos c ON c.id_torre = t.id_torre
-        WHERE c.estado = 'EN PROGRESO'
-          AND t.id_torre IN (SELECT id_torre FROM inserted)   -- solo las torres tocadas
-        GROUP BY t.id_torre, t.capacidad_planta
-        HAVING SUM(c.cantidad_plantas) > t.capacidad_planta
-    )
-        THROW 50020, 'La torre supera su capacidad de plantas.', 1;
-END;
-GO
-
-/*
- * Trigger: tr_cultivos_cancelar_tareas
- *
- * Cancela tareas cuando un cultivo pasa a MUERTO o COSECHADO.
- */
-
- CREATE OR ALTER TRIGGER tr_cultivos_cancelar_tareas
- ON cultivos
- AFTER UPDATE
- AS
- BEGIN
-    SET NOCOUNT ON;
-    UPDATE t
-    SET t.estado_tarea = 'CANCELADA' 
-    FROM tareas t
-    JOIN inserted i ON t.id_cultivo = i.id_cultivo
-    JOIN deleted d ON d.id_cultivo = i.id_cultivo
-    WHERE (i.estado IN ('MUERTO','COSECHADO')) AND 
-          (d.estado = 'EN PROGRESO') AND 
-          (t.estado_tarea IN ('PENDIENTE','ASIGNADA','EN PROGRESO'));
-    END;
-    GO
