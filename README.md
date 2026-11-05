@@ -1,4 +1,4 @@
-# 🌱 Sistema de Gestión Hidropónica — TP SQL - GRUPO 7
+# 🌱 Sistema de Gestión Hidropónica — TP SQL - GRUPO 6
 
 Trabajo práctico de base de datos que modela la gestión de un sistema de cultivo hidropónico. El proyecto está desarrollado íntegramente en **SQL**, incluyendo el diseño de entidades, triggers, stored proceduresy vistas.
 
