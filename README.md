@@ -104,7 +104,7 @@ https://trello.com/b/atc55BkM/tp-ing-datos-i
 
 ## 👥 Integrantes
 
-| Integrantes — Grupo 7  |
+| Integrantes — Grupo 6  |
 | ---------------------- |
 | Alejandro Zoilo Guzman |
 | Diego Rua              |
